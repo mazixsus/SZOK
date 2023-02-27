@@ -1,0 +1,128 @@
+{% extends 'clientsApp/clientBase.html.twig' %}
+{% block content %}
+    <div class="row pb-4 mt-0">
+        <div class="h1 col-md">Repertuar</div>
+    </div>
+    <div class="mx-3">
+        <div class="mx-3">
+            <form method="post" class="mx-3">
+                <div class="row">
+                    <div class=" py-4 mx-1">
+                        <label class="required">Wprowadź datę</label>
+                    </div>
+                    <div style="width: 250px;" class="py-3 mx-1">
+                        <input type="date" id="date" name="date" required="required" class="form-control"
+                               min="{{ dateMin|date("Y-m-d") }}" value="{{ date|date("Y-m-d") }}">
+                    </div>
+                    <div class="py-3 mx-1">
+                        <input type="submit" class="btn btn-primary" name="submit" value="Pokaż"/>
+                    </div>
+                </div>
+            </form>
+            {% if seances %}
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th style="width: 25%;">Tytuł</th>
+                        <th>Godziny</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% set prevTitleId = null %}
+                    {% set titleId = null %}
+                    {% set title = null %}
+                    {% for seance in seances %}
+                    {% for smf in seance.seansMaFilmy|slice(0,1) %}
+                        {% set titleId = smf.filmy.id %}
+                        {% set title = smf.filmy.tytul %}
+                    {% endfor %}
+                    {% if titleId != prevTitleId %}
+                    <tr>
+                        <td>
+                            {% if seance.wydarzeniaspecjalne %}
+                                {{ seance.wydarzeniaspecjalne }} -
+                                {% for smf in seance.seansMaFilmy %}
+                                    {{ smf.filmy }} {% if not loop.last %}, {% endif %}
+                                {% endfor %}
+                                {% set prevTitleId = 1 %}
+                            {% else %}
+                                {% for smf in seance.seansMaFilmy|slice(0,1) %}
+                                    {{ smf.filmy }}
+                                    {% set prevTitleId = smf.filmy.id %}
+                                {% endfor %}
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a class="btn btn-primary" style="margin-top: 1px; margin-bottom: 1px;"
+                               href="#" data-toggle="modal"
+                               data-target="#seanceId{{ seance.id }}">{{ seance.poczatekseansu|date("H:i") }} {{ seance.typyseansow }}</a>
+                            {% else %}
+                                <a class="btn btn-primary" style="margin-top: 1px; margin-bottom: 1px;"
+                                   href="#" data-toggle="modal"
+                                   data-target="#seanceId{{ seance.id }}">{{ seance.poczatekseansu|date("H:i") }} {{ seance.typyseansow }}</a>
+                            {% endif %}
+                            <!-- Modal -->
+                            <div class="modal fade" id="seanceId{{ seance.id }}" tabindex="-1" role="dialog"
+                                 aria-labelledby="modelTitleId" aria-hidden="true">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content bg-client">
+                                        <div class="modal-header">
+                                            <h4 class="modal-title" id="modelTitleId">
+                                                {% if seance.wydarzeniaspecjalne %}
+                                                    {{ seance.wydarzeniaspecjalne }}
+                                                {% else %}
+                                                    {{ title }}
+                                                {% endif %}
+                                            </h4>
+                                            <button type="button" class="close text-light" data-dismiss="modal"
+                                                    aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <ul>
+                                                {% if seance.wydarzeniaspecjalne %}
+                                                    <li>Filmy:
+                                                        <ul>
+                                                            {% for smf in seance.seansMaFilmy %}
+                                                                <li>{{ smf.filmy }}</li>
+                                                            {% endfor %}
+                                                        </ul>
+                                                    </li>
+                                                {% endif %}
+                                                <li>
+                                                    Format: {{ seance.typyseansow }}
+                                                </li>
+                                                <li>
+                                                    Data: {{ seance.poczatekseansu|date("d.m.Y") }}
+                                                </li>
+                                                <li>
+                                                    Godzina: {{ seance.poczatekseansu|date("H:i") }}
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                                                Anuluj
+                                            </button>
+                                            <a class="btn btn-primary"
+                                               href="{{ path('clients_app/transactions/add', {'id':seance.id}) }}">Sprzedaż</a>
+                                            <a class="btn btn-primary"
+                                               href="{{ path('clients_app/reservations/add' , { 'id':seance.id} ) }}">Rezerwacja</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- End of Modal -->
+                            {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <h1 class="text-center">Brak repertuaru na ten dzień!</h1>
+                <div class="text-center display-1">
+                    <i class="fa fa-th-list" aria-hidden="true"></i>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

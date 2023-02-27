@@ -1,0 +1,146 @@
+{% extends 'workersApp/workerBase.html.twig' %}
+{% block content %}
+    <div class="pb-4 mt-0">
+        <div class="row pb-4 mt-0">
+            <div class="h1 col-md">Repertuar</div>
+            {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_MANAGER') %}
+                <div class="col-md">
+                    <a href="{{ path ('workers_app/seances/new') }}" class="btn btn-primary pull-right">Dodaj nowy
+                        seans</a>
+                </div>
+            {% endif %}
+        </div>
+        <div class="mx-3">
+            <div class="mx-3">
+                <form method="post" class="mx-3">
+                    <div class="row">
+                        <div class=" py-4 mx-1">
+                            <label class="required">Wprowadź datę</label>
+                        </div>
+                        <div style="width: 250px;" class="py-3 mx-1">
+                            <input type="date" id="date" name="date" required="required" class="form-control"
+                                   value="{{ date|date("Y-m-d") }}">
+                        </div>
+                        <div class="py-3 mx-1">
+                            <input type="submit" class="btn btn-primary" name="submit" value="Pokaż"/>
+                        </div>
+                    </div>
+                </form>
+                <div>
+                    {% if first != null %}
+                        <div style="overflow-x: auto">
+                        <div class="row" style="width:{{ (interval+2) * 120 +102 }}px;">
+                            {% set h = interval %}
+                            {% set i = 0 %}
+                            {% set title = null %}
+                            <div style="width: 70px;" class="mx-3 my-3 font-weight-bold">Nr sali:</div>
+                            {% for i in 0..(interval+1) %}
+                                <div class="my-3 font-weight-bold"
+                                     style="width:120px;">{{ first }}{% set first = first +1 %}{% if first == 24 %}{% set first = 0 %}{% endif %}</div>
+                            {% endfor %}
+                        </div>
+                        {% set prev = null %}
+                        {% for seance in seances %}
+                            {% if prev != seance.seance.sale %}
+                                {% if prev != null %}
+                                    </div>
+                                    <div class="row border-top" style="width:{{ (interval+2) * 120 +102 }}px;">
+                                    <div style="width: 70px;"
+                                         class="mx-3 my-4 font-weight-bold">{{ seance.seance.sale }}</div>
+                                {% else %}
+                                    <div class="row border-top" style="width:{{ (interval+2) * 120 +102 }}px;">
+                                    <div style="width: 70px;"
+                                         class="mx-3 my-4 font-weight-bold">{{ seance.seance.sale }}</div>
+                                {% endif %}
+                                {% set prev = seance.seance.sale %}
+
+                            {% endif %}
+
+                            <div class="my-1"
+                                 style="width: {{ (seance.interval.d*24*60 + seance.interval.h*60 + seance.interval.i) *2 }}px"></div>
+                            <div class="btn btn-primary my-1"
+                                 style="width:{{ (seance.time.h * 60 + seance.time.i)*2 }}px;white-space: normal"
+                                 data-toggle="modal" data-target="#seanceId{{ seance.seance.id }}">
+                                {% if seance.seance.wydarzeniaspecjalne %}
+                                    {{ seance.seance.wydarzeniaspecjalne }} - {% for smf in seance.seance.seansMaFilmy %}
+                                    {{ smf.filmy }}{% if not loop.last %}, {% endif %}
+                                {% endfor %}- {{ seance.seance.typyseansow }}
+                                {% else %}
+                                    {% for smf in seance.seance.seansMaFilmy|slice(0,1) %}
+                                        {{ smf.filmy }} - {{ seance.seance.typyseansow }}
+                                        {% set title = smf.filmy %}
+                                    {% endfor %}
+                                {% endif %}
+                                <br>
+                                {{ seance.seance.poczatekseansu|date("H:i") }}
+                                - {{ seance.seance.SeanceEndTime|date("H:i") }}
+                            </div>
+                            <!-- Modal -->
+                            <div class="modal fade" id="seanceId{{ seance.seance.id }}" tabindex="-1" role="dialog"
+                                 aria-labelledby="modelTitleId" aria-hidden="true">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content bg-dark text-light text-left">
+                                        <div class="modal-header">
+                                            <h4 class="modal-title" id="modelTitleId">
+                                                {% if seance.seance.wydarzeniaspecjalne %}
+                                                    {{ seance.seance.wydarzeniaspecjalne }}
+                                                {% else %}
+                                                    {{ title }}
+                                                {% endif %}
+                                            </h4>
+                                            <button type="button" class="close text-light" data-dismiss="modal"
+                                                    aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <ul>
+                                                {% if seance.seance.wydarzeniaspecjalne %}
+                                                    <li>Filmy:
+                                                        {% for smf in seance.seance.seansMaFilmy %}
+                                                            {{ smf.filmy }}{% if not loop.last %}, {% endif %}
+                                                        {% endfor %}
+                                                    </li>
+                                                {% endif %}
+                                                <li>
+                                                    Format: {{ seance.seance.typyseansow }}
+                                                </li>
+                                                <li>
+                                                    Data: {{ seance.seance.poczatekseansu|date("d.m.Y") }}
+                                                </li>
+                                                <li>
+                                                    Godzina: {{ seance.seance.poczatekseansu|date("H:i") }}
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                                                Anuluj
+                                            </button>
+                                            {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_MANAGER') %}
+                                                <a class="btn btn-primary"
+                                                   href="{{ path('workers_app/seances/show', {'id':seance.seance.id}) }}">Pokaż</a>
+                                            {% endif %}
+                                            <a class="btn btn-primary"
+                                               href="{{ path('workers_app/transactions/add', {'id':seance.seance.id}) }}">Sprzedaż</a>
+                                            <a class="btn btn-primary"
+                                               href="{{ path('workers_app/reservations/add' , { 'id':seance.seance.id} ) }}">Rezerwacja</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- End of Modal -->
+                        {% endfor %}
+                        </div>
+                        </div>
+                    {% else %}
+                        <h1 class="text-center">Brak repertuaru na ten dzień!</h1>
+                        <div class="text-center display-1">
+                            <i class="fa fa-th-list" aria-hidden="true"></i>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,52 @@
+{% extends 'workersApp/workerBase.html.twig' %}
+
+{% block content %}
+    <div class="row pb-4 mt-0">
+        <div class="h1 col-md">Lista filmów</div>
+        {% if is_granted('ROLE_MANAGER') or is_granted('ROLE_ADMIN') %}
+            <div class="col-md">
+                <a href="{{ path('workers_app/movies/new') }}" class="btn btn-primary pull-right">Nowy film</a>
+            </div>
+        {% endif %}
+    </div>
+    {% if pageCount >0 %}
+        <div style="overflow-x: auto;">
+            <table id="movies" class="table">
+                <thead>
+                <tr>
+                    <th style="width: 25%">Tytuł filmu</th>
+                    <th style="width: 15%">Czas trwania</th>
+                    <th style="width: 15%">Czas reklam</th>
+                    <th style="width: 35%">Dostępne formaty</th>
+                    <th style="width: 10%"></th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for movie in movies %}
+                    <tr>
+                        <td scope="row">{{ movie.tytul }} ({{ movie.datapremiery|date("Y") }})</td>
+                        <td>{{ movie.czastrwania }} min</td>
+                        <td>{{ movie.czasreklam }} min</td>
+                        <td>
+                            {% for format in movie.typyseansow %}
+                                {{ format.nazwa }}{% if not loop.last %}, {% endif %}
+                            {% endfor %}
+                        </td>
+                        <td>
+                            <a class="btn btn-primary btn-sm pull-right" href="{{ path('workers_app/movies/show', {'id': movie.id }) }}">Pokaż</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% set basePath = path('workers_app/movies') %}
+        {% include 'workersApp/inc/pagination.html.twig' %}
+    {% else %}
+        <h1 class="text-center">Brak filmów</h1>
+        <div class="text-center display-1">
+            <i class="fa fa-movie" aria-hidden="true"></i>
+        </div>
+    {% endif %}
+{% endblock %}

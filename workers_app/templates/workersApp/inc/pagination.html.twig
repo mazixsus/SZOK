@@ -1,0 +1,113 @@
+{# required parameters: currentPage, pageCount, basePath #}
+{% if currentPage is defined and pageCount is defined and basePath is defined %}
+    {% if pageCount > 1 %}
+        <nav aria-label="Pagination" class="pt-2">
+            {% set previousPage = currentPage - 1 %}
+            {% set nextPage = currentPage + 1 %}
+            <div class="d-block d-sm-none">
+                {% if currentPage > 1 %}
+                    <a href="{{ basePath~"/"~previousPage }}" class="btn btn-primary btn-sm">
+                        <i class="fa fa-angle-left" aria-hidden="true"></i> Wstecz
+                    </a>
+                {% endif %}
+                {% if currentPage < pageCount %}
+                    <a href="{{ basePath~"/"~nextPage }}" class="btn btn-primary btn-sm pull-right">
+                        Dalej <i class="fa fa-angle-right" aria-hidden="true"></i>
+                    </a>
+                {% endif %}
+            </div>
+            <div class="d-none d-sm-block">
+                <ul class="pagination float-right">
+                    {% if currentPage == 1 %}
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#" aria-label="Wstecz">
+                                <i class="fa fa-angle-left" aria-hidden="true"></i>
+                                <span class="sr-only">Wstecz</span>
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ basePath~"/"~previousPage }}"
+                               aria-label="Wstecz">
+                                <i class="fa fa-angle-left" aria-hidden="true"></i>
+                                <span class="sr-only">Wstecz</span>
+                            </a>
+                        </li>
+                    {% endif %}
+
+                    {% if pageCount < 7 %}
+                        {% for i in range(1, pageCount) %}
+                            <li class="page-item{% if i == currentPage %} active{% endif %}">
+                                <a href="{{ basePath~"/"~i }}" class="page-link">{{ i }}</a>
+                            </li>
+                        {% endfor %}
+                    {% elseif previousPage < 3 %}
+                        {% for i in range(1, 4) %}
+                            <li class="page-item{% if i == currentPage %} active{% endif %}">
+                                <a href="{{ basePath~"/"~i }}" class="page-link">{{ i }}</a>
+                            </li>
+                        {% endfor %}
+                        <li class="page-item disabled">
+                            <a href="#" class="page-link">&hellip;</a>
+                        </li>
+                        <li class="page-item">
+                            <a href="{{ basePath~"/"~pageCount }}" class="page-link">{{ pageCount }}</a>
+                        </li>
+                    {% elseif nextPage > pageCount-2 %}
+                        <li class="page-item">
+                            <a href="{{ basePath~"/"~1 }}" class="page-link">1</a>
+                        </li>
+                        <li class="page-item disabled">
+                            <a href="#" class="page-link">&hellip;</a>
+                        </li>
+                        {% for i in range(pageCount-3, pageCount) %}
+                            <li class="page-item{% if i == currentPage %} active{% endif %}">
+                                <a href="{{ basePath~"/"~i }}" class="page-link">{{ i }}</a>
+                            </li>
+                        {% endfor %}
+                    {% else %}
+                        <li class="page-item">
+                            <a href="{{ basePath~"/"~1 }}"
+                               class="page-link">1</a>
+                        </li>
+                        <li class="page-item disabled">
+                            <a href="#" class="page-link">&hellip;</a>
+                        </li>
+
+                        <li class="page-item">
+                            <a href="{{ basePath~"/"~previousPage }}" class="page-link">{{ previousPage }}</a>
+                        </li>
+                        <li class="page-item active">
+                            <a href="{{ basePath~"/"~currentPage }}" class="page-link">{{ currentPage }}</a>
+                        </li>
+                        <li class="page-item">
+                            <a href="{{ basePath~"/"~nextPage }}" class="page-link">{{ nextPage }}</a>
+                        </li>
+
+                        <li class="page-item disabled">
+                            <a href="#" class="page-link">&hellip;</a>
+                        </li>
+                        <li class="page-item">
+                            <a href="{{ basePath~"/"~pageCount }}" class="page-link">{{ pageCount }}</a>
+                        </li>
+                    {% endif %}
+                    {% if currentPage == pageCount %}
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#" aria-label="Dalej">
+                                <i class="fa fa-angle-right" aria-hidden="true"></i>
+                                <span class="sr-only">Dalej</span>
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ basePath~"/"~nextPage }}" aria-label="Dalej">
+                                <i class="fa fa-angle-right" aria-hidden="true"></i>
+                                <span class="sr-only">Dalej</span>
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </nav>
+    {% endif %}
+{% endif %}

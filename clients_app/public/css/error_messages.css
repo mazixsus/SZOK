@@ -1,0 +1,22 @@
+.invalid-feedback ul{
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.input-group-append .input-group-text{
+    border-bottom-right-radius: 0.25rem !important;
+    border-top-right-radius: 0.25rem !important;
+}
+
+.input-group.feedback-after-last-input .form-control{
+    border-bottom-right-radius: 0.25rem !important;
+    border-top-right-radius: 0.25rem !important;
+}
+
+.is-invalid.form-control-file{
+    border: 1px solid #dc3545;
+}
+
+.form-control:disabled{
+    opacity: 0.3;
+}

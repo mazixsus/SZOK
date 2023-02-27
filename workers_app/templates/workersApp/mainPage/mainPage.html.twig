@@ -1,0 +1,133 @@
+{% extends 'workersApp/workerBase.html.twig' %}
+
+{% block content %}
+    <div class="mt-0">
+        <div class="h1 pb-3">Wybierz działanie</div>
+        <div style="overflow-x: auto">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th style="width: 10%">Nr</th>
+                    <th style="width: 15%">Moduł</th>
+                    <th style="width: 75%"></th>
+                </tr>
+                </thead>
+                <tbody>
+                {% set counter = 1 %}
+                {% if is_granted('ROLE_MANAGER') or is_granted('ROLE_ADMIN') %}
+                    <tr>
+                        <td>{{ counter }}</td>
+                        {% set counter = counter + 1 %}
+                        <td>Pracownicy</td>
+                        <td>
+                            <a href="{{ path('worker_app/employees/list') }}" class="btn btn-primary mb-1">Lista
+                                pracowników</a>
+                            {% if is_granted('ROLE_ADMIN') %}
+                                <a href="{{ path("workers_app/employees/new") }}" class="btn btn-primary mb-1">Nowy
+                                    pracownik</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endif %}
+                {% if is_granted('ROLE_ADMIN') %}
+                    <tr>
+                        <td>{{ counter }}</td>
+                        {% set counter = counter + 1 %}
+                        <td>Uzytkownicy</td>
+                        <td>
+                            <a href="{{ path('workers_app/clients') }}" class="btn btn-primary mb-1">Lista użytkowników</a>
+                        </td>
+                    </tr>
+                {% endif %}
+                {% if is_granted('ROLE_MANAGER') or is_granted('ROLE_ADMIN') %}
+                    <tr>
+                        <td>{{ counter }}</td>
+                        {% set counter = counter + 1 %}
+                        <td>Bilety</td>
+                        <td>
+                            <a href="{{ path('workers_app/tickets/dictionaryName', {'dictionaryName':'pools'}) }}"
+                               class="btn btn-primary mb-1">Lista puli</a>
+                            {% if is_granted('ROLE_ADMIN') %}
+                                <a href="{{ path('workers_app/tickets/pools/add') }}" class="btn btn-primary mb-1">Nowa
+                                    pula</a>
+                                <a href="{{ path('workers_app/tickets/dictionaryName', {'dictionaryName':'types'}) }}"
+                                   class="btn btn-primary mb-1">Rodzaje biletów</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endif %}
+                <tr>
+                    <td>{{ counter }}</td>
+                    {% set counter = counter + 1 %}
+                    <td>Sale</td>
+                    <td>
+                        <a href="{{ path('workers_app/rooms_page') }}" class="btn btn-primary mb-1">Lista sal</a>
+                        {% if is_granted('ROLE_ADMIN') %}
+                            <a href="{{ path('workers_app/rooms_page/room_creator_page') }}" class="btn btn-primary mb-1">Nowa
+                                sala</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td>{{ counter }}</td>
+                    {% set counter = counter + 1 %}
+                    <td>Repertuar</td>
+                    <td>
+                        <a href="{{ path('workers_app/movies') }}" class="btn btn-primary mb-1">Lista filmów</a>
+                        <a href="{{ path('workers_app/program/date') }}" class="btn btn-primary mb-1">Seanse wg daty</a>
+                        <a href="{{ path('workers_app/program/rooms') }}" class="btn btn-primary mb-1">Repertuar wg sal</a>
+                        {% if is_granted('ROLE_MANAGER') or is_granted('ROLE_ADMIN') %}
+                            <a href="{{ path('workers_app/movies/new') }}" class="btn btn-primary mb-1">Nowy film</a>
+                            <a href="{{ path('workers_app/seances/new') }}" class="btn btn-primary mb-1">Nowy seans</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td>{{ counter }}</td>
+                    {% set counter = counter + 1 %}
+                    <td>Promocje</td>
+                    <td>
+                        <a href="{{ path('workers_app/promotions') }}" class="btn btn-primary mb-1">Lista promocji</a>
+                        {% if is_granted('ROLE_MANAGER') or is_granted('ROLE_ADMIN') %}
+                            <a href="{{ path('workers_app/promotions/add') }}" class="btn btn-primary mb-1">Nowa promocja</a>
+                            <a href="{{ path('workers_app/vouchers') }}" class="btn btn-primary mb-1">Vouchery</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td>{{ counter }}</td>
+                    {% set counter = counter + 1 %}
+                    <td>Sprzedaż</td>
+                    <td>
+                        <a href="{{ path('workers_app/reservations', {'date': 0, 'id': 0, 'name': 0, 'surname': 0 } ) }}" class="btn btn-primary mb-1">Lista rezerwacji</a>
+                        {% if is_granted('ROLE_MANAGER') or is_granted('ROLE_ADMIN') %}
+                            <a href="{{ path('workers_app/return_ticket') }}" class="btn btn-primary mb-1">Zwrot biletów</a>
+                        {% endif %}
+                        <a href="{{ path('workers_app/verify_ticket') }}" class="btn btn-primary mb-1">Weryfikacja</a>
+                    </td>
+                </tr>
+                {% if is_granted('ROLE_MANAGER') or is_granted('ROLE_ADMIN') %}
+                    <tr>
+                        <td>{{ counter }}</td>
+                        {% set counter = counter + 1 %}
+                        <td>Raporty</td>
+                        <td>
+                            <a href="{{ path('workers_app/reports/sale') }}" class="btn btn-primary mb-1">Raport sprzedaży</a>
+                            <a href="{{ path('workers_app/reports/seances') }}" class="btn btn-primary mb-1">Raport seansów odwołanych</a>
+                        </td>
+                    </tr>
+                {% endif %}
+                {% if is_granted('ROLE_ADMIN') %}
+                    <tr>
+                        <td>{{ counter }}</td>
+                        <td>Słowniki</td>
+                        <td>
+                            <a href="{{ path('workers_app/dictionaries') }}" class="btn btn-primary mb-1">Lista słowników</a>
+                        </td>
+                    </tr>
+                {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

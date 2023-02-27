@@ -1,0 +1,26 @@
+.nav.navbar-nav.navbar-right li a {
+    color: black;
+}
+
+.bg-client {
+    background-color: #71b6de;
+}
+
+.bg-background{
+    background-color: #ebebeb;
+}
+
+.modal-header {
+    border-bottom: 1px solid black;
+}
+
+.modal-footer {
+    border-top: 1px solid black;
+}
+
+table.table > thead > tr > th{
+    border-color: black;
+}
+table.table > tbody > tr > td{
+    border-color: black;
+}

@@ -1,0 +1,53 @@
+{% extends 'workersApp/workerBase.html.twig' %}
+
+{% block content %}
+    <div class="row justify-content-center">
+        <div class="h1 pb-3 col-md-7">Weryfikacja biletów</div>
+    </div>
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="">Wprowadź kod biletu</div>
+            <div id="ticketAlert" ></div>
+            <input type="text" value="" name="ticketCode"
+                   id="ticketCode"
+                   class="form-control"
+                   onkeyup="onKeyUpTicketInput()"
+                   onkeypress='return event.charCode >= 48 && event.charCode <= 57'>
+            <button type="button" class="btn btn-primary mt-2 pull-right"
+                    onclick="checkTicket(this)">
+                Weryfikuj
+            </button>
+        </div>
+    </div>
+    <script>
+        function checkTicket(button) {
+            button.disabled = true;
+            $.ajax({
+                url: '{{ path('workers_app/verify_ticket') }}',
+                type: "POST",
+                dataType: "json",
+                data: {
+                    "ticketCode": document.getElementById('ticketCode').value
+                },
+                async: true,
+                success: function (data) {
+                    console.log(data);
+                    if ('error' in data) {
+                        document.getElementById('ticketAlert').innerHTML = data['error'];
+                        document.getElementById('ticketAlert').classList = 'text-danger font-weight-bold';
+
+                    } else {
+                        document.getElementById('ticketAlert').innerHTML = data['message'];
+                        document.getElementById('ticketAlert').classList = 'text-success font-weight-bold';
+                    }
+                    button.disabled = false;
+                }
+            });
+        }
+
+        function onKeyUpTicketInput() {
+            document.getElementById('ticketAlert').innerHTML = '';
+        }
+    </script>
+
+{% endblock %}

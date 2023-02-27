@@ -1,0 +1,48 @@
+{% extends 'workersApp/workerBase.html.twig' %}
+
+{% block content %}
+    <div class="row pb-4 mt-0">
+    <div class="h1 col-md">Lista Pracowników</div>
+        {% if is_granted('ROLE_ADMIN') %}
+            <div class="col-md">
+                <a href="{{ path("workers_app/employees/new") }}" class="btn btn-primary pull-right">Dodaj nowego pracownika</a>
+            </div>
+        {% endif %}
+        </div>
+    {% if pageCount > 0 %}
+        <div style="overflow-x: auto ">
+            <table id="employees" class="table">
+                <thead>
+                <tr>
+                    <th style="width: 10%">Id</th>
+                    <th style="width: 20%">Imię</th>
+                    <th style="width: 20%">Nazwisko</th>
+                    <th style="width: 20%">Rola</th>
+                    <th style="width: 10%"></th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for worker in workerList  %}
+                    <tr>
+                        <td>{{ worker.id }}</td>
+                        <td>{{ worker.imie }}</td>
+                        <td>{{ worker.nazwisko }}</td>
+                        <td>{{ worker.role.nazwa }}  </td>
+                        <td>
+                            <a href="{{ path('workers_app/employees/show',{"id":worker.id}) }}"
+                               class="btn btn-primary float-right btn-sm">Pokaż</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% set basePath = path('worker_app/employees/list') %}
+        {% include 'workersApp/inc/pagination.html.twig' %}
+    {% else %}
+        <h1 class="text-center">Brak pracowników</h1>
+        <div class="text-center display-1">
+            <i class="fa fa-user" aria-hidden="true"></i>
+        </div>
+    {% endif %}
+{% endblock %}

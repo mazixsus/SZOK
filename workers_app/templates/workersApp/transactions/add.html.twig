@@ -1,0 +1,289 @@
+{% extends 'workersApp/workerBase.html.twig' %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('css/room_view.css') }}" type="text/css">
+{% endblock %}
+
+
+{% block content %}
+    <div class="row px-3">
+        <h1 class="mb-3 font-weight-normal">Sprzedaż - wybór miejsc</h1>
+    </div>
+    <div class="row px-3">
+        <h6 class="mb-3 font-weight-normal">
+            {% if seance.wydarzeniaspecjalne %}
+                {{ seance.wydarzeniaspecjalne }} -
+                {% for smf in seance.seansMaFilmy %}
+                    {{ smf.filmy }}{% if not loop.last %}, {% endif %}
+                {% endfor %}
+            {% else %}
+                {% for smf in seance.seansMaFilmy|slice(0,1) %}
+                    {{ smf.filmy }}
+                {% endfor %}
+            {% endif %}
+            - {{ seance.typyseansow }} - {{ seance.poczatekseansu|date('d.m.Y H:i') }} - {{ seance.sale }}
+        </h6>
+    </div>
+    {% if error %}
+        <div class="alert alert-danger alert-dismissible fade show">
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+            {{ error }}
+        </div>
+    {% endif %}
+    <div class="content panel mt-2 mb-3 mx-0 p-5 bg-light">
+        <div class="row justify-content-between px-3">
+            <div class="room_view" id="roomContent">
+                <div class="mb-3">
+                    <div class="text_center screen"
+                         style="width: {{ seance.sale.szerokoscsali *38-8 }} px">
+                        EKRAN
+                    </div>
+                </div>
+
+                <div class="inline mb-2" id="seats">
+                    <div class="mr-3 rowNumber seatViewPadding" id="Row"> 1</div>
+                    {% for value in roomLayout %}
+                    {% if loop.index == loop.first %}
+                        {% set currentRow = value.miejsca.rzedy %}
+                    {% endif %}
+                    {% if currentRow != value.miejsca.rzedy %}
+                </div>
+                <div class="inline mb-2">
+                    <div class="mr-3 rowNumber seatViewPadding" id="Row"> {{ currentRow.numerrzedu + 1 }} </div>
+                    {% endif %}
+
+                    {% if value.miejsca.numermiejsca == 0 %}
+                        <div class="no-seat seatViewPadding mr-2" id=""></div>
+                    {% elseif value.status == 4 %}
+                        <div class="seat seat_sold seatViewPadding mr-2"
+                             id="{{ value.miejsca.id }}">{{ value.miejsca.numermiejsca }}</div>
+                    {% elseif value.status == 3 %}
+                        <div class="seat seat_reserved seatViewPadding mr-2"
+                             id="{{ value.miejsca.id }}">{{ value.miejsca.numermiejsca }}</div>
+                    {% elseif value.status == 2 %}
+                        <button class="seat seat_buying_only seatViewPadding mr-2 pointer"
+                                id="{{ value.miejsca.id }}"
+                                onclick="selectSeatBuyingOnly(this, {{ value.miejsca.id }}, {{ value.miejsca.rzedy.numerrzedu }},{{ value.miejsca.numermiejsca }})">{{ value.miejsca.numermiejsca }}</button>
+                    {% else %}
+                        <button class="seat seat_normal seatViewPadding mr-2 pointer"
+                                id="{{ value.miejsca.id }}"
+                                onclick="selectSeat(this, {{ value.miejsca.id }}, {{ value.miejsca.rzedy.numerrzedu }},{{ value.miejsca.numermiejsca }})">{{ value.miejsca.numermiejsca }}</button>
+                    {% endif %}
+
+                    {% set currentRow = value.miejsca.rzedy %}
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="mt-2 mx-2 p-3 legend float-right">
+                <h3 class="col-12 mb-3">Legenda</h3>
+                <div class="col-12 mb-2">
+                    <div class="seat seat_normal legend_seat mr-1" id="button1"></div>
+                    <label for="button1">{{ rowType[0].nazwa }}</label>
+                </div>
+                <div class="col-12 mb-2">
+                    <div class="seat seat_buying_only legend_seat mr-1"></div>
+                    <label for="button2">{{ rowType[1].nazwa }}</label>
+                </div>
+                <div class="col-12 mb-2">
+                    <div class="seat seat_reserved legend_seat mr-1"></div>
+                    <label for="button2">Zarezerwowane</label>
+                </div>
+                <div class="col-12 mb-2">
+                    <div class="seat seat_sold legend_seat mr-1"></div>
+                    <label for="button2">Sprzedane</label>
+                </div>
+                <div class="col-12">
+                    <div class="seat seat_selected legend_seat mr-1"></div>
+                    <label for="button2">Zaznaczone</label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row justify-content-between px-3">
+        <div>
+            <a href="{{ path('workers_app/program/date') }}" class="btn btn-secondary">
+                <i class="fa fa-angle-left" aria-hidden="true"></i>
+                Wróć
+            </a>
+        </div>
+        <div>
+            <form method="post">
+                <input type="text" id="roomNumber" name="roomNumber" hidden value="">
+                <input type="text" id="rowCount" name="rowCount" hidden value="">
+                <input type="text" id="seatCount" name="seatCount" hidden value="">
+                <input type="text" id="rowCode" name="rowCode" hidden value="">
+                <input type="text" id="seatCode" name="seatCode" hidden value="">
+            </form>
+        </div>
+        <!-- Button trigger modal -->
+        <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" onclick="createTable()"
+                data-target="#reservationId">
+            Dalej
+        </button>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="reservationId" tabindex="-1" role="dialog"
+         aria-labelledby="modelTitleId" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+            <div class="modal-content bg-dark text-light text-left">
+                <div class="modal-header">
+                    <div class="row px-3">
+                        <h2 class="modal-title" id="modelTitleId">
+                            Sprzedaż - wybierz rodzaje biletów
+                        </h2>
+                    </div>
+                    <button type="button" class="close text-light" data-dismiss="modal"
+                            aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row px-3">
+                        <h5 class="mb-3 font-weight-normal">
+                            {% if seance.wydarzeniaspecjalne %}
+                                {{ seance.wydarzeniaspecjalne }} -
+                                {% for smf in seance.seansMaFilmy %}
+                                    {{ smf.filmy }}{% if not loop.last %}, {% endif %}
+                                {% endfor %}
+                            {% else %}
+                                {% for smf in seance.seansMaFilmy|slice(0,1) %}
+                                    {{ smf.filmy }}
+                                {% endfor %}
+                            {% endif %}
+                            - {{ seance.typyseansow }}
+                            - {{ seance.poczatekseansu|date('d.m.Y H:i') }} - {{ seance.sale }}
+                        </h5>
+                    </div>
+                    <form name="form" method="post">
+                        <div class="m-3">
+                            <div class="m-3">
+                                <div class="form-group row">
+                                    <div class="col-sm-12" id="seatLabel">
+
+                                    </div>
+                                </div>
+
+                                <div id="ticketTable">
+
+                                </div>
+                            </div>
+                        </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary float-left" data-dismiss="modal">
+                            Anuluj
+                        </button>
+                        <button type="submit" id="form_save" name="" class="btn btn-primary float-right"
+                                onclick="" disabled="">Zatwierdz
+                        </button>
+                    </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <!-- End of Modal -->
+    </div>
+    <script>
+        var seatIdArray = [];
+        var seatCounter = 0;
+        const seatLabel = document.getElementById("seatLabel");
+        const submitButton = document.getElementById("form_save");
+        const ticketTable = document.getElementById('ticketTable');
+
+        window.onload = function () {
+            for (var i = 0; i < {{ seance.sale.dlugoscsali }}; i++) {
+                seatIdArray[i] = [];
+                for (var j = 0; j < {{ seance.sale.szerokoscsali }}; j++) {
+                    seatIdArray[i][j] = [];
+                }
+            }
+
+            {% for selectedSeat in selectedSeats %}
+            {% if selectedSeat != null %}
+            var selectedseat = document.getElementById("{{ selectedSeat }}");
+            if (selectedseat.classList.toString().includes('seat_normal') || selectedseat.classList.toString().includes('seat_buying_only')) {
+                selectedseat.click();
+            }
+            {% endif %}
+            {% endfor %}
+
+            createTable();
+        };
+
+        function selectSeatBuyingOnly(button, id, rowNumber, seatNumber) {
+            if (button.classList.toString().includes('seat_buying_only')) {
+                seatCounter++;
+                seatIdArray[rowNumber - 1][seatNumber - 1].push(id);
+                button.classList.remove('seat_buying_only');
+                button.classList.add('seat_selected');
+            } else {
+                seatCounter--;
+                seatIdArray[rowNumber - 1][seatNumber - 1].pop();
+                button.classList.remove('seat_selected');
+                button.classList.add('seat_buying_only');
+            }
+        }
+
+        function selectSeat(button, id, rowNumber, seatNumber) {
+            if (button.classList.toString().includes('seat_normal')) {
+                seatCounter++;
+                seatIdArray[rowNumber - 1][seatNumber - 1].push(id);
+                button.classList.remove('seat_normal');
+                button.classList.add('seat_selected');
+            } else {
+                seatCounter--;
+                seatIdArray[rowNumber - 1][seatNumber - 1].pop();
+                button.classList.remove('seat_selected');
+                button.classList.add('seat_normal');
+            }
+        }
+
+        function createTable() {
+            submitButton.disabled = false;
+            seatLabel.style.color = 'white';
+            seatLabel.innerHTML = '';
+            ticketTable.innerHTML = '';
+
+            if (seatCounter > 0) {
+
+                var tableHtml =
+                    '<table id="tickets" class="table">' +
+                    '<thead>' +
+                    '<tr>' +
+                    '<th>Rząd i miejsce</th>' +
+                    '<th>Rodzaj biletu</th>' +
+                    '</tr>' +
+                    '</thead>' +
+                    '<tbody>' +
+                    '<tr>';
+
+                for (var i = 0; i < seatIdArray.length; i++) {
+                    for (var j = 0; j < seatIdArray[i].length; j++) {
+                        if (seatIdArray[i][j].length > 0) {
+                            tableHtml += '<td> Rząd: ' + (i + 1) + ' Miejsca: ' + (j + 1) + '</td>' +
+                                '<td><select id="ticketFor' + seatIdArray[i][j][0] + '" name="' + seatIdArray[i][j][0] + '"' +
+                                'class="form-control">' +
+                                    {% for ticket in tickets %}
+                                '<option value="{{ ticket.id }}">{{ ticket.nazwa }} ({{ ticket.cena }})</option>' +
+                                    {% endfor %}
+                                '</select></td>' +
+                                '</tr>';
+                        }
+                    }
+                }
+
+                tableHtml +=
+                    '</tbody>' +
+                    '</table>';
+
+                ticketTable.innerHTML = tableHtml;
+            } else {
+                seatLabel.innerHTML = "Żadne miejsca nie zostały wybrane."
+                seatLabel.style.color = 'red';
+                submitButton.disabled = true;
+            }
+        }
+
+    </script>
+{% endblock %}

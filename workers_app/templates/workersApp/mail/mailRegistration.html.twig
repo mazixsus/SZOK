@@ -1,0 +1,18 @@
+<html>
+<body style="color: black;">
+<h2>Witaj {{ client.imie }}</h2><br>
+
+Dziękujemy za rejestracje na naszej stronie!<br>
+<br>
+Twoje dane na serwisie to:<br>
+Login: {{ client.login }}<br>
+Imię: {{ client.imie }}<br>
+Nazwisko: {{ client.nazwisko }}<br>
+Płeć: {% if client.czykobieta %}Kobieta{% else %}Mężczyzna{% endif %}<br>
+Numer telefonu: {{ client.telefon }}<br>
+<br>
+<h2>Pozdrawiamy!</h2><br>
+
+
+</body>
+</html>

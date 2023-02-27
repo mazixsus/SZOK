@@ -1,0 +1,75 @@
+{% extends 'clientsApp/clientBase.html.twig' %}
+
+{% block content %}
+    <div class="row pb-4 mt-0 justify-content-between">
+        <div class="h1 col-md">Promocje nieaktywne</div>
+        <div class="col-md">
+            <a href="{{ path('clients_app/promotions') }}" class="btn btn-primary pull-right"><i class="fa fa-percent"
+                                                                                                 aria-hidden="true"></i>
+                Pokaż aktywne</a>
+        </div>
+    </div>
+    {% if promotions %}
+        <div style="overflow-x: auto;">
+            <table id="promotions" class="table">
+                <thead>
+                <tr>
+                    <th style="width: 25%">Nazwa promocji</th>
+                    <th style="width: 20%">Wysokość promocji</th>
+                    <th style="width: 35%">Specjalne warunki</th>
+                    <th style="width: 20%">Czas trwania promocji</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for promotion in promotions %}
+                    <tr>
+                        <td scope="row">{{ promotion.nazwa }}</td>
+                        <td>{{ promotion.wartosc }} {% if promotion.czykwotowa %}zł{% else %}%{% endif %}</td>
+                        {% if promotion.staz is not null %}
+                            {% if is_granted('ROLE_USER') %}
+                                {% if promotion.staz|date('Y-m-d') > app.user.datarejestracji|date('Y-m-d') %}
+                                    {% set class = 'text-danger' %}
+                                {% else %}
+                                    {% set class = 'text-success' %}
+                                {% endif %}
+                            {% else %}
+                                {% set class = 'text-danger' %}
+                            {% endif %}
+                        {% else %}
+                            {% set class = 'text-success' %}
+                        {% endif %}
+                        <td class="{{ class }} font-weight-bold">
+                            {% if promotion.czykobieta is not null %}
+                                {% if promotion.czykobieta %}
+                                    Tylko dla pań
+                                {% else %}
+                                    Tylko dla panów
+                                {% endif %}
+                                {% if promotion.staz is not null %}
+                                    posiadających konto od {{ promotion.staz|date("d.m.Y") }} lub dłużej
+                                {% endif %}
+                            {% elseif promotion.staz is not null %}
+                                Tylko dla użytkowników z kontem od {{ promotion.staz|date("d.m.Y") }} lub dłużej
+                            {% else %}
+                                Brak
+                            {% endif %}
+                        </td>
+                        <td class="text-danger">
+                            {{ promotion.poczatekPromocji|date("d.m.Y") }}
+                            - {{ promotion.koniecPromocji|date("d.m.Y") }}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% set basePath = path('clients_app/promotions/old') %}
+        {% include 'clientsApp/inc/pagination.html.twig' %}
+    {% else %}
+        <h1 class="text-center">Brak niekatywnych promocji</h1>
+        <div class="text-center display-1">
+            <i class="fa fa-percent" aria-hidden="true"></i>
+        </div>
+    {% endif %}
+{% endblock %}

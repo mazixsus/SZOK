@@ -1,0 +1,210 @@
+{% extends 'clientsApp/clientBase.html.twig' %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('css/checkboxes.css') }}">
+{% endblock %}
+
+{% block content %}
+    <div class="row justify-content-between px-3 mb-3">
+        <div>
+            <h1 class="mb-3 font-weight-normal">Moje rezerwacje</h1>
+        </div>
+    </div>
+    <form method="post">
+        <div class="row pl-2 pr-4 mb-3">
+            <div class="form-inline">
+
+            </div>
+        </div>
+        <div class="row justify-content-between pl-2 pr-4 mb-3">
+            <div class="form-inline">
+                <label for="date" class="mx-sm-2">Dzień seansu: </label>
+                <input type="date" name="date" id="date"
+                       class="form-control" value="{% if values %}{{ values.date }}{% endif %}"
+                       onkeypress=''>
+                <div class="form-group  ml-4">
+                    <input type="checkbox" name="accomplish" id="accomplish"
+                           class="form-control" onclick="accomplishCheck(this)"
+                            {% if values.ifAccomplish == null or values.ifAccomplish == 1 %}
+                                checked
+                            {% endif %}
+                    >
+                    <label for="accomplish" class="mx-sm-2">Zrealizowane</label>
+                </div>
+                <div class="form-group">
+                    <input type="checkbox" name="notAccomplish" id="notAccomplish"
+                           class="form-control" onclick="notAccomplishCheck(this)"
+                            {% if values.ifAccomplish == null or values.ifAccomplish == 0 %}
+                                checked
+                            {% endif %}
+                    >
+                    <label for="notAccomplish" class="mx-sm-2">Niezrealizowane</label>
+                </div>
+                <button class="btn btn-primary ml-sm-2" id="filterButton" type="submit">
+                    Filtruj
+                </button>
+            </div>
+            <div>
+                <a class="btn btn-primary"
+                   href="{{ path('clients_app/reservations', {'date': 0, 'ifAccomplish': 2 } ) }}">Pokaż wszystkie</a>
+            </div>
+        </div>
+    </form>
+    {% if reservations %}
+        <div style="overflow-x: auto;">
+            <table id="reservations" class="table">
+                <thead>
+                <tr>
+                    <th style="width: 20%">Numer rezerwacji</th>
+                    <th style="width: 60%">Seans</th>
+                    <th style="width: 20%"></th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for reservation in reservations %}
+                    <tr>
+                        <td scope="row">{{ reservation.id }} </td>
+                        <td>
+                            {% if reservation.seanse.wydarzeniaspecjalne %}
+                                {{ reservation.seanse.wydarzeniaspecjalne }} -
+                                {% for smf in reservation.seanse.seansMaFilmy %}
+                                    {{ smf.filmy }}{% if not loop.last %}, {% endif %}
+                                {% endfor %}
+                            {% else %}
+                                {% for smf in reservation.seanse.seansMaFilmy|slice(0,1) %}
+                                    {{ smf.filmy }}
+                                {% endfor %}
+                            {% endif %}
+                            - {{ reservation.seanse.typyseansow.nazwa }}
+                            - {{ reservation.seanse.poczatekseansu|date('d.m.Y H:i') }}
+                            - {{ reservation.seanse.sale }}
+                        </td>
+                        <td>
+                            {% if reservation.sfinalizowana == 0 %}
+                                <div id="alert{{ reservation.id }}"></div>
+                                <div class="pull-right" id="buttonsDiv{{ reservation.id }}">
+                                    <!-- Button trigger modal -->
+                                    <button type="button" class="btn btn-danger btn-sm" data-toggle="modal"
+                                            data-target="#reservationId{{ reservation.id }}">
+                                        Anuluj rezerwacje
+                                    </button>
+                                    <!-- Modal -->
+                                    <div class="modal fade" id="reservationId{{ reservation.id }}" tabindex="-1"
+                                         role="dialog"
+                                         aria-labelledby="modelTitleId" aria-hidden="true">
+                                        <div class="modal-dialog" role="document">
+                                            <div class="modal-content bg-client">
+                                                <div class="modal-header">
+                                                    <h4 class="modal-title" id="modelTitleId">
+                                                        <i class="fa fa-trash" aria-hidden="true"></i>
+                                                        Anulowanie rezerwacji
+                                                    </h4>
+                                                    <button type="button" class="close text-light"
+                                                            id="buttonClose{{ reservation.id }}"
+                                                            data-dismiss="modal"
+                                                            aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    Czy napewno chcesz anulować rezerwacje {{ reservation.id }}?
+                                                    <ul>
+                                                        <li>
+                                                            Imię i
+                                                            nazwisko: {{ reservation.imie }} {{ reservation.nazwisko }}
+                                                        </li>
+                                                        <li>
+                                                            Seans:
+                                                            {% if reservation.seanse.wydarzeniaspecjalne %}
+                                                                {{ reservation.seanse.wydarzeniaspecjalne }}
+                                                            {% else %}
+                                                                {% for smf in reservation.seanse.seansMaFilmy|slice(0,1) %}
+                                                                    {{ smf.filmy }}
+                                                                {% endfor %}
+                                                            {% endif %}
+                                                        </li>
+                                                    </ul>
+                                                    Akcji tej nie da sie odwrócić.
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary"
+                                                            data-dismiss="modal">
+                                                        Anuluj
+                                                    </button>
+                                                    <button type="button"
+                                                            onclick="deleteReservation({{ reservation.id }})"
+                                                            class="btn btn-danger delete-reservation">
+                                                        <i id="spinner{{ reservation.id }}"></i> Anuluj rezerwacje
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- End of Modal -->
+                                    <a class="btn btn-primary btn-sm"
+                                       href="{{ path('clients_app/reservations/accomplish', {'id':reservation.id } ) }}">Zrealizuj</a>
+                                </div>
+                            {% else %}
+                                <div class="text-success font-weight-bold pull-right">Zrealizowana</div>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% set basePath = path('clients_app/reservations', {
+            'date': app.request.get('date'),
+            'ifAccomplish': app.request.get('ifAccomplish')
+        } ) %}
+        {% include 'clientsApp/inc/pagination.html.twig' %}
+
+        <script>
+
+            window.onload = function () {
+
+            };
+
+            function notAccomplishCheck(notAccomplishCheckbox) {
+                if (!notAccomplishCheckbox.checked) {
+                    document.getElementById('accomplish').checked = true;
+                }
+            }
+
+            function accomplishCheck(accomplishCheckbox) {
+                if (!accomplishCheckbox.checked) {
+                    document.getElementById('notAccomplish').checked = true;
+                }
+            }
+
+            function deleteReservation(reservationId) {
+                document.getElementById('spinner' + reservationId).setAttribute('class', 'fa fa-spinner fa-spin');
+                $.ajax({
+                    url: '{{ path('clients_app/reservations/delete') }}',
+                    type: "DELETE",
+                    dataType: "json",
+                    data: {
+                        "reservationId": reservationId
+                    },
+                    async: true,
+                    success: function (data) {
+                        document.getElementById('buttonClose' + reservationId).click();
+                        document.getElementById('buttonsDiv' + reservationId).hidden = true;
+                        document.getElementById('alert' + reservationId).hidden = false;
+                        console.log(data);
+                        if (data.result) {
+                            document.getElementById('alert' + reservationId).innerHTML = "Rezerwacja została poprawnie usunięta!";
+                            document.getElementById('alert' + reservationId).classList = 'text-success font-weight-bold pull-right';
+                        } else {
+                            document.getElementById('alert' + reservationId).innerHTML = "Rezerwacja została już wcześniej usunięta lub jest już zrealizowana. Proszę odświeżyć stronę i spróbować ponownie";
+                            document.getElementById('alert' + reservationId).classList = 'text-danger font-weight-bold pull-right';
+                        }
+                    }
+                });
+            }
+        </script>
+    {% else %}
+        <p class="h1">Brak rezerwacji</p>
+    {% endif %}
+{% endblock %}

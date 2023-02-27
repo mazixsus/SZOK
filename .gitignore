@@ -1,0 +1,6 @@
+
+###> symfony/framework-bundle ###
+/.idea/
+/images/*
+!/images/no_poster.jpg
+###< symfony/framework-bundle ###

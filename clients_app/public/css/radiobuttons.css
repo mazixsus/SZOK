@@ -1,0 +1,44 @@
+/*style ogólne*/
+input[type="radio"] {
+    margin-left: 5px;
+    margin-right: 5px;
+    cursor: pointer;
+}
+
+input[type="radio"]:disabled {
+    cursor: default;
+}
+
+input[type="radio"]:disabled + label {
+    color: inherit;
+    background-color: transparent;
+    opacity: 0.3;
+    cursor: default;
+}
+
+input[type="radio"] + label {
+    padding-left: 5px;
+    padding-right: 5px;
+    cursor: pointer;
+}
+
+input[type="radio"] + label:hover, input[type="checkbox"]:hover + label {
+    color: white;
+    background-color: #007bff;
+}
+
+input[type="radio"]:disabled + label:hover, input[type="checkbox"]:disabled:hover + label {
+    color: inherit;
+    background-color: transparent;
+    opacity: 0.3;
+}
+
+input[type="radio"]:checked + label {
+    color: white;
+    background-color: #007bff;
+}
+@media (max-width: 575px) {
+    input[type="radio"] + label {
+        width: calc(100% - 30px);
+    }
+}

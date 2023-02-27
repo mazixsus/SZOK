@@ -1,0 +1,20 @@
+{% extends 'base.html.twig' %}
+{% block mainstylesheets %}
+    <link rel="stylesheet" href="{{ asset('css/client_main.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/links_on_hover.css') }}">
+{% endblock %}
+{% block bodyclass %}bg-background{% endblock %}
+{% block body %}
+    {% block navigation %}
+        {% if is_granted('IS_AUTHENTICATED_FULLY') %}
+            {% include 'clientsApp/inc/clientNav.html.twig' %}
+        {% else %}
+            {% include 'clientsApp/inc/visitorNav.html.twig' %}
+        {% endif %}
+    {% endblock %}
+    <div class="content jumbotron justify-center mt-4 mx-4 bg-client text-black mb-0">
+        {% block content %}
+        {% endblock %}
+    </div>
+{% endblock %}
+

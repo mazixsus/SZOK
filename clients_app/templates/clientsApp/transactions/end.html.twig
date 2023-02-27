@@ -1,0 +1,55 @@
+{% extends 'clientsApp/clientBase.html.twig' %}
+
+{% block content %}
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <h2>Transakcja zakończyła się sukcesem!</h2> <br>
+                Na podany adres email: {{ email }} została wysłana wiadomość mailowa zawierająca wydruk biletów na seans.<br>
+                Strona z biletami została otwarta w nowym oknie. <br>
+                Przycisk "Pokaż bilety" ponownie otworzy strone z biletami w nowym oknie. <br>
+                Przycisk "Wyślij email" ponownie wyśle wiadomość mailową z biletami na podany adres email. <br>
+                Dziękujemy za skorzystanie z naszych usług.<br>
+                Życzymy miłego seansu.<br>
+                <br>
+            <div id="mailAlert" class="font-weight-bold"></div>
+            <a class="btn btn-primary pull-left" id="mainPageButton"
+               href="{{ path('clients_app/main_page') }}">
+                <i class="fa fa-angle-left" aria-hidden="true"></i>
+                Przejdź do strony głównej</a>
+            <a class="btn btn-primary pull-right" id="ticketButton"
+               href="{{ path('clients_app/ticket') }}"
+               target="_blank">Pokaż bilety</a>
+            <button onclick="sendEmail()" class="btn btn-primary pull-right mr-1" id="mailButton">Wyślij email</button>
+        </div>
+    </div>
+    <script>
+        window.onload = function () {
+            document.getElementById('ticketButton').click();
+        };
+
+        function sendEmail() {
+            $.ajax({
+                url: '{{ path('clients_app/transactions/end') }}',
+                type: "POST",
+                dataType: "json",
+                data: {
+                    "sendMail": true
+                },
+                async: true,
+                success: function (data) {
+                    var mailAlert =document.getElementById('mailAlert');
+                    mailAlert.hidden = false;
+                    if(data.result == 0){
+                        mailAlert.innerHTML = 'Nie udało sie wysłąć maila';
+                        mailAlert.style.color = 'red';
+                    } else {
+                        mailAlert.innerHTML =  'Wysłano maila';
+                        mailAlert.style.color = 'green';
+                    }
+                    setTimeout(function(){ document.getElementById('mailAlert').hidden = true;}, 3000);
+                }
+            });
+        }
+    </script>
+
+{% endblock %}

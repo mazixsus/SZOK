@@ -1,0 +1,10 @@
+{% extends 'workersApp/seances/new.html.twig' %}
+{% block contexttitle %}
+    {% if seance.wydarzeniaspecjalne %}
+        {{ seance.wydarzeniaspecjalne }} {{ seance.typyseansow }}
+    {% else %}
+        {% for smf in seance.seansMaFilmy|slice(0,1) %}
+            {{ smf }} {{ seance.typyseansow }}
+        {% endfor %}
+    {% endif %}
+{% endblock %}

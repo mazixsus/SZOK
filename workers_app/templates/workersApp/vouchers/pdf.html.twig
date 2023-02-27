@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Vouchery</title>
+    <style>
+        table {
+            border: 1px solid black;
+            border-collapse: collapse;
+        }
+
+        td {
+            font-size: large;
+        }
+    </style>
+</head>
+<body>
+<table style="width: 100%; border: 0px; margin-bottom: 30px">
+    <tr>
+        <td style="text-align: center; font-size: xx-large; font-weight: bold; padding-bottom: 15px">SZOK -
+            Vouchery
+        </td>
+    </tr>
+    <tr>
+        <td style="font-size: larger;">
+            Wysokość zniżki:
+            {{ vouchers[0].wartosc }} {% if vouchers[0].czykwotowa %}zł{% else %}%{% endif %}
+        </td>
+    </tr>
+    <tr>
+        <td style="font-size: larger;">Ważne: {{ vouchers[0].poczatekpromocji|date("d.m.Y") }}
+            - {{ vouchers[0].koniecpromocji|date("d.m.Y") }}</td>
+    </tr>
+</table>
+
+{% set count = 0 %}
+
+{% for voucher in vouchers %}
+    {% if not voucher.czywykorzystany %}
+        <table style="width: 33%; text-align: center; float: left;">
+            <tr>
+                <td>
+                    <img src="{{ qr_code_data_uri(voucher.code, { writer: 'svg', size: 150 }) }}" alt="">
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    {{ voucher.code }}
+                </td>
+            </tr>
+        </table>
+        {% set count = count + 1 %}
+        {% if count is divisible by(15) and loop.index != loop.last %}
+            <div style="overflow: hidden; page-break-after: always;"></div>
+            <div>&nbsp;</div>
+            <table style="width: 100%; border: 0px; margin-bottom: 30px">
+                <tr>
+                    <td style="text-align: center; font-size: xx-large; font-weight: bold; padding-bottom: 15px">SZOK -
+                        Vouchery
+                    </td>
+                </tr>
+                <tr>
+                    <td style="font-size: larger;">
+                        Wysokość zniżki:
+                        {{ vouchers[0].wartosc }} {% if vouchers[0].czykwotowa %}zł{% else %}%{% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td style="font-size: larger;">Ważne: {{ vouchers[0].poczatekpromocji|date("d.m.Y") }}
+                        - {{ vouchers[0].koniecpromocji|date("d.m.Y") }}</td>
+                </tr>
+            </table>
+        {% endif %}
+    {% endif %}
+{% endfor %}
+</body>
+</html>

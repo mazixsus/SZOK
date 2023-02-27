@@ -1,0 +1,247 @@
+{% extends 'workersApp/workerBase.html.twig' %}
+
+{% block content %}
+    <div class="pb-5 pb-sm-0">
+        <div class="mt-0 pb-5 pb-sm-0">
+            <div class="h1 pb-3">Szczegóły seansu -
+                {% if seance.wydarzeniaspecjalne %}
+                    {{ seance.wydarzeniaspecjalne }} {{ seance.typyseansow }}
+                {% else %}
+                    {% for smf in seance.seansMaFilmy|slice(0,1) %}
+                        {{ smf.filmy }} {{ seance.typyseansow }}
+                    {% endfor %}
+                {% endif %}
+            </div>
+            <div class="mx-5 mt-4">
+                <div class="mx-xl-5">
+                    <div class="mx-xl-5 h5">
+                        <div class="row mb-3">
+                            <div class="col-md-6 mb-3">Data seansu:</div>
+                            <div class="col-md-6 mb-3">
+                                {{ seance.poczatekseansu|date("d.m.Y") }}
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6 mb-3">Godzina rozpoczęcia seansu:</div>
+                            <div class="col-md-6 mb-3">
+                                {{ seance.poczatekseansu|date("H:i") }}
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6 mb-3">Godzina zakończenia seansu:</div>
+                            <div class="col-md-6 mb-3">
+                                {{ seance.seanceEndTime|date("H:i") }}
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6 mb-3">Sala:</div>
+                            <div class="col-md-6 mb-3">{{ seance.sale }}</div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6 mb-3">Format filmu:</div>
+                            <div class="col-md-6 mb-3">
+                                {{ seance.typyseansow }}
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6 mb-3">Pula biletów:</div>
+                            <div class="col-md-6 mb-3">
+                                {{ seance.pulebiletow }}
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6 mb-3">Wydarzenie specjalne:</div>
+                            <div class="col-md-6 mb-3">
+                                {% if seance.wydarzeniaspecjalne %}
+                                    {{ seance.wydarzeniaspecjalne }}
+                                {% else %}
+                                    Nie dotyczy
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="row mb-3" id="smf_group">
+                            {% if seance.wydarzeniaspecjalne %}
+                                <div class="col-md-12 mb-3">Filmy:</div>
+                                <div class="col-md-12 mb-3">
+                                    <table class="table">
+                                        <thead>
+                                        <tr>
+                                            <th style="width: 30%">Pozycja</th>
+                                            <th style="width: 70%">Film</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        {% for smf in seance.seansMaFilmy %}
+                                            <tr>
+                                                <td>{{ smf.kolejnosc }}</td>
+                                                <td>{{ smf.filmy }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% else %}
+                                <div class="col-md-6 mb-3">Filmy:</div>
+                                <div class="col-md-6 mb-3">
+                                    {% for smf in seance.seansMaFilmy|slice(0,1) %}
+                                        {{ smf.filmy }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <a href="{{ path('workers_app/program/date') }}" class="btn btn-secondary mt-2"><i
+                            class="fa fa-angle-left" aria-hidden="true"></i>
+                    Przejdź do repertuaru</a>
+                <div class="pull-right">
+                    <a href="{{ path('workers_app/reservations/add', {'id': seance.id }) }}"
+                       class="btn btn-primary mt-2">Rezerwacja</a>
+                    <a href="{{ path('workers_app/transactions/add', {'id': seance.id }) }}"
+                       class="btn btn-primary mt-2">Sprzedaż</a>
+                    {% if booking %}
+                        <button type="button" class="btn btn-info mt-2" data-toggle="modal" data-target="#revId">
+                            Zdejmij rezerwacje
+                        </button>
+
+                        <!-- Modal -->
+                        <div class="modal fade" id="revId" tabindex="-1" role="dialog" aria-labelledby="modelTitleId"
+                             aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content bg-dark text-light text-left">
+                                    <div class="modal-header">
+                                        <h4 class="modal-title" id="modelTitleId">
+                                            <i class="fa fa-calendar-times-o"></i>
+                                            Zdejmowanie rezerwacji
+                                        </h4>
+                                        <button type="button" class="close text-light" data-dismiss="modal"
+                                                aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        Czy napewno chcesz zdjąć wszystkie niesfinalizowane rezerwacje na ten seans?
+                                        <ul>
+                                            <li>
+                                                Sala: {{ seance.sale }}
+                                            </li>
+                                            <li>
+                                                Data: {{ seance.poczatekseansu|date("d.m.Y H:i") }}
+                                                - {{ seance.seanceEndTime|date("H:i") }}
+                                            </li>
+                                            <li>
+                                                Filmy: {% if seance.wydarzeniaspecjalne %}
+                                                    {% for smf in seance.seansMaFilmy %}
+                                                        {{ smf.filmy }}{% if not loop.last %}, {% endif %}
+                                                    {% endfor %}
+                                                {% else %}
+                                                    {% for smf in seance.seansMaFilmy|slice(0,1) %}
+                                                        {{ smf.filmy }}
+                                                    {% endfor %}
+                                                {% endif %}
+                                            </li>
+                                        </ul>
+                                        Akcji tej nie da sie odwrócić.
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                                            Anuluj
+                                        </button>
+                                        <button id="rmBooking" type="button" class="btn btn-info cancel-rev"
+                                                data-id="{{ seance.id }}">
+                                            <i id="spinnerRev{{ seance.id }}"></i> Zdejmij rezerwacje
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <script>
+                            const booking = document.getElementById('rmBooking');
+                            booking.addEventListener('click', e => {
+                                const id = e.target.getAttribute('data-id');
+                                e.target.setAttribute('disabled', 'true');
+                                document.getElementById('spinnerRev' + id).setAttribute('class', 'fa fa-spinner fa-spin');
+                                fetch(`{{ path('workers_app/seances/rmRev') }}/${id}`,
+                                    {method: 'DELETE'}
+                                ).then(res => window.location.reload());
+                            })
+                        </script>
+                    {% endif %}
+                    {% if not seance.rezerwacje|length and not seance.tranzakcje|length %}
+                        <a href="{{ path('workers_app/seances/edit', {'id': seance.id}) }}"
+                           class="btn btn-primary mt-2">Edytuj</a>
+                        <button type="button" class="btn btn-danger mt-2" data-toggle="modal" data-target="#cancelId">
+                            Odwołaj
+                        </button>
+
+                        <!-- Modal -->
+                        <div class="modal fade" id="cancelId" tabindex="-1" role="dialog" aria-labelledby="modelTitleId"
+                             aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content bg-dark text-light text-left">
+                                    <div class="modal-header">
+                                        <h4 class="modal-title" id="modelTitleId">
+                                            <i class="fa fa-calendar-minus-o"></i>
+                                            Odwoływanie seansu
+                                        </h4>
+                                        <button type="button" class="close text-light" data-dismiss="modal"
+                                                aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        Czy napewno chcesz odwołać ten seans?
+                                        <ul>
+                                            <li>
+                                                Sala: {{ seance.sale }}
+                                            </li>
+                                            <li>
+                                                Data: {{ seance.poczatekseansu|date("d.m.Y H:i") }}
+                                                - {{ seance.seanceEndTime|date("H:i") }}
+                                            </li>
+                                            <li>
+                                                Filmy: {% if seance.wydarzeniaspecjalne %}
+                                                    {% for smf in seance.seansMaFilmy %}
+                                                        {{ smf.filmy }}{% if not loop.last %}, {% endif %}
+                                                    {% endfor %}
+                                                {% else %}
+                                                    {% for smf in seance.seansMaFilmy|slice(0,1) %}
+                                                        {{ smf.filmy }}
+                                                    {% endfor %}
+                                                {% endif %}
+                                            </li>
+                                        </ul>
+                                        Akcji tej nie da sie odwrócić.
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                                            Anuluj
+                                        </button>
+                                        <button id="rmSeance" type="button" class="btn btn-danger cancel-seance"
+                                                data-id="{{ seance.id }}">
+                                            <i id="spinnerCancel{{ seance.id }}"></i> Odwołaj seans
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <script>
+                            const seance = document.getElementById('rmSeance');
+                            seance.addEventListener('click', e => {
+                                const id = e.target.getAttribute('data-id');
+                                e.target.setAttribute('disabled', 'true');
+                                document.getElementById('spinnerCancel' + id).setAttribute('class', 'fa fa-spinner fa-spin');
+                                fetch(`{{ path('workers_app/seances/rmSeance') }}/${id}`,
+                                    {method: 'DELETE'}
+                                ).then(res => window.location.href = "{{ path('workers_app/program/date') }}");
+                            })
+                        </script>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

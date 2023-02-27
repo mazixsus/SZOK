@@ -1,0 +1,127 @@
+{% extends 'clientsApp/clientBase.html.twig' %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('css/error_messages.css') }}">
+{% endblock %}
+
+{% block javascripts %}
+    <script src="{{ asset('js/form_invalid_func.js') }}"></script>
+{% endblock %}
+
+{% block content %}
+    <div class="row justify-content-center">
+        <div class="col-md-9 pb-4 mt-0">
+            <div class="h1 pb-3">Rejestracja</div>
+            {{ form_start(form) }}
+            <div class="mx-3">
+                <div class="mx-3">
+                    <div class="form-group row">
+                        {{ form_label(form.login) }}
+                        <div class="col-sm-10 px-0">
+                            {% if form.login.vars.errors|length > 0 %}
+                                {{ form_widget(form.login, {'attr': {'class': 'is-invalid form-control'}}) }}
+                            {% else %}
+                                {{ form_widget(form.login) }}
+                            {% endif %}
+                            <div class="invalid-feedback">
+                                {{ form_errors(form.login) }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        {{ form_label(form.haslo.first) }}
+                        <div class="col-sm-10 px-0">
+                            {% if form.haslo.first.vars.errors|length > 0 %}
+                                {{ form_widget(form.haslo.first, {'attr': {'class': 'is-invalid form-control'}}) }}
+                            {% else %}
+                                {{ form_widget(form.haslo.first) }}
+                            {% endif %}
+                            <div class="invalid-feedback">
+                                {{ form_errors(form.haslo.first) }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        {{ form_label(form.haslo.second) }}
+                        <div class="col-sm-10 px-0">
+                            {% if form.haslo.first.vars.errors|length > 0 %}
+                                {{ form_widget(form.haslo.second, {'attr': {'class': 'is-invalid form-control'}}) }}
+                            {% else %}
+                                {{ form_widget(form.haslo.second) }}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        {{ form_label(form.imie) }}
+                        <div class="col-sm-10 px-0">
+                            {% if form.imie.vars.errors|length > 0 %}
+                                {{ form_widget(form.imie, {'attr': {'class': 'is-invalid form-control'}}) }}
+                            {% else %}
+                                {{ form_widget(form.imie) }}
+                            {% endif %}
+                            <div class="invalid-feedback">
+                                {{ form_errors(form.imie) }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        {{ form_label(form.nazwisko) }}
+                        <div class="col-sm-10 px-0">
+                            {% if form.nazwisko.vars.errors|length > 0 %}
+                                {{ form_widget(form.nazwisko, {'attr': {'class': 'is-invalid form-control'}}) }}
+                            {% else %}
+                                {{ form_widget(form.nazwisko) }}
+                            {% endif %}
+                            <div class="invalid-feedback">
+                                {{ form_errors(form.nazwisko) }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        {{ form_label(form.email) }}
+                        <div class="col-sm-10 px-0">
+                            {% if form.email.vars.errors|length > 0 %}
+                                {{ form_widget(form.email, {'attr': {'class': 'is-invalid form-control'}}) }}
+                            {% else %}
+                                {{ form_widget(form.email) }}
+                            {% endif %}
+                            <div class="invalid-feedback">
+                                {{ form_errors(form.email) }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        {{ form_label(form.telefon) }}
+                        <div class="col-sm-10 px-0">
+                            {% if form.telefon.vars.errors|length > 0 %}
+                                {{ form_widget(form.telefon, {'attr': {'class': 'is-invalid form-control'}}) }}
+                            {% else %}
+                                {{ form_widget(form.telefon) }}
+                            {% endif %}
+                            <div class="invalid-feedback">
+                                {{ form_errors(form.telefon) }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        {{ form_label(form.czykobieta) }}
+                        <div class="col-sm-10 row">
+                            <div class="col-sm-11 px-0">
+                                {{ form_widget(form.czykobieta) }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="pull-right" style="margin-right: -15px">
+                        {{ form_widget(form.save) }}
+                    </div>
+                    {{ form_end(form) }}
+                    <a class="btn btn-secondary float-left" href="{{ path('clients_app/main_page') }}"
+                       role="button">
+                        <i class="fa fa-angle-left" aria-hidden="true"></i>
+                        Wróć
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

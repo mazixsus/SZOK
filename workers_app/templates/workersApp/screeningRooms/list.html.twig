@@ -1,0 +1,129 @@
+{% extends 'workersApp/workerBase.html.twig' %}
+
+{% block content %}
+    <div class="row justify-content-between px-3">
+        <div>
+            <h1 class="mb-3 font-weight-normal">Lista sal</h1>
+        </div>
+        <div class="col-md">
+            {% if is_granted('ROLE_ADMIN') %}
+                <a href="{{ path('workers_app/rooms_page/room_creator_page') }}"
+                   class="btn btn-primary pull-right ml-1">Nowa sala</a>
+            {% endif %}
+            <a href="{{ path('workers_app/program/rooms') }}" class="btn btn-primary pull-right">Pokaż repertuar wg
+                sal</a>
+        </div>
+    </div>
+    {% if pageCount > 0 %}
+        <div style="overflow-x: auto;">
+            <table id="rooms" class="table">
+                <thead>
+                <tr>
+                    <th style="width: 30%">Numer sali</th>
+                    <th style="width: 30%">Ilość miejsc</th>
+                    <th style="width: 40%"></th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for room in rooms %}
+                    <tr>
+                        <td scope="row">{{ room.numersali }} </td>
+                        <td>{{ seatCounts[loop.index0].liczba }}</td>
+                        <td>
+                            <div class="pull-right">
+                                {% if (is_granted('ROLE_MANAGER') or is_granted('ROLE_ADMIN'))%}
+                                    <a class="btn btn-primary btn-sm"
+                                       href="{{ path('workers_app/rooms_page/edit', {'id': room.id}) }}"> Edytuj</a>
+                                    {% if (is_granted('ROLE_ADMIN') and checkRooms[loop.index0] ) %}
+                                        <!-- Button trigger modal -->
+                                        <button type="button" class="btn btn-danger btn-sm" data-toggle="modal"
+                                                data-target="#roomId{{ room.id }}">
+                                            Usuń
+                                        </button>
+                                        <!-- Modal -->
+                                        <div class="modal fade" id="roomId{{ room.id }}" tabindex="-1" role="dialog"
+                                             aria-labelledby="modelTitleId" aria-hidden="true">
+                                            <div class="modal-dialog" role="document">
+                                                <div class="modal-content bg-dark text-light text-left">
+                                                    <div class="modal-header">
+                                                        <h4 class="modal-title" id="modelTitleId">
+                                                            <i class="fa fa-trash" aria-hidden="true"></i>
+                                                            Usuwanie sali
+                                                        </h4>
+                                                        <button type="button" class="close text-light"
+                                                                data-dismiss="modal"
+                                                                aria-label="Close">
+                                                            <span aria-hidden="true">&times;</span>
+                                                        </button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        Czy napewno chcesz usunąć tą sale?
+                                                        <ul>
+                                                            <li>
+                                                                Numer sali: {{ room.numersali }}
+                                                            </li>
+                                                            <li>
+                                                                Liczba
+                                                                miejesc: {{ seatCounts[loop.index0].liczba }}
+                                                            </li>
+                                                        </ul>
+                                                        Akcji tej nie da sie odwrócić.
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary"
+                                                                data-dismiss="modal">
+                                                            Anuluj
+                                                        </button>
+                                                        <button type="button" class="btn btn-danger delete-room"
+                                                                data-id="{{ room.id }}">
+                                                            <i id="spinner{{ room.id }}"></i> Usuń
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- End of Modal -->
+                                    {% endif %}
+                                {% endif %}
+                                <a class="btn btn-primary btn-sm"
+                                   href="{{ path('workers_app/rooms_page/view', {'id': room.id}) }}">Pokaż
+                                    podgląd</a>
+                                <a class="btn btn-primary btn-sm"
+                                   href="{{ path("workers_app/program/room", {'roomId':room.id}) }}">Pokaż seanse</a>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {# remember to set basePath before including pagination #}
+        {% set basePath = path('workers_app/rooms_page') %}
+        {% include 'workersApp/inc/pagination.html.twig' %}
+
+        {% if is_granted('ROLE_ADMIN')%}
+            <script>
+                const room = document.getElementById('rooms');
+                if (room) {
+                    room.addEventListener('click', e => {
+                        if (e.target.className === 'btn btn-danger delete-room') {
+                            const id = e.target.getAttribute('data-id');
+                            e.target.setAttribute('disabled', 'true');
+                            document.getElementById('spinner' + id).setAttribute('class', 'fa fa-spinner fa-spin');
+
+                            fetch(`{{ path('workers_app/rooms_page/delete') }}/${id}`,
+                                {method: 'DELETE'}
+                            ).then(res => window.location.reload());
+                        }
+                    })
+                }
+            </script>
+        {% endif %}
+    {% else %}
+        <h1 class="text-center">Brak sal</h1>
+        <div class="text-center display-1">
+            <i class="fa fa-th" aria-hidden="true"></i>
+        </div>
+    {% endif %}
+{% endblock %}

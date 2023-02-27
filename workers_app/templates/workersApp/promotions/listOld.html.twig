@@ -1,0 +1,66 @@
+{% extends 'workersApp/workerBase.html.twig' %}
+
+{% block content %}
+    <div class="row pb-4 mt-0 justify-content-between">
+        <div class="h1 col-md">Promocje nieaktywne</div>
+        <div class="col-md">
+            <div class="pull-right">
+                {% if is_granted('ROLE_MANAGER') or is_granted('ROLE_ADMIN') %}
+                    <a href="{{ path('workers_app/promotions/add') }}" class="btn btn-primary">Nowa promocja</a>
+                {% endif %}
+                <a href="{{ path('workers_app/promotions') }}" class="btn btn-primary">Pokaż aktywne</a>
+            </div>
+        </div>
+    </div>
+    {% if pageCount > 0 %}
+        <div style="overflow-x: auto;">
+            <table id="promotions" class="table">
+                <thead>
+                <tr>
+                    <th style="width: 25%">Nazwa promocji</th>
+                    <th style="width: 20%">Wysokość promocji</th>
+                    <th style="width: 35%">Specjalne warunki</th>
+                    <th style="width: 20%">Czas trwania promocji</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for promotion in promotions %}
+                    <tr>
+                        <td scope="row">{{ promotion.nazwa }}</td>
+                        <td>{{ promotion.wartosc }} {% if promotion.czykwotowa %}zł{% else %}%{% endif %}</td>
+                        <td>
+                            {% if promotion.czykobieta is not null %}
+                                {% if promotion.czykobieta %}
+                                    Tylko dla pań
+                                {% else %}
+                                    Tylko dla panów
+                                {% endif %}
+                                {% if promotion.staz is not null %}
+                                    posiadających konto od {{ promotion.staz|date("d.m.Y") }} lub dłużej
+                                {% endif %}
+                            {% elseif promotion.staz is not null %}
+                                Tylko dla użytkowników z kontem od {{ promotion.staz|date("d.m.Y") }} lub dłużej
+                            {% else %}
+                                Brak
+                            {% endif %}
+                        </td>
+                        <td>
+                            {{ promotion.poczatekPromocji|date("d.m.Y") }}
+                            - {{ promotion.koniecPromocji|date("d.m.Y") }}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {# remember to set basePath before including pagination #}
+        {% set basePath = path('workers_app/promotions') %}
+        {% include 'workersApp/inc/pagination.html.twig' %}
+    {% else %}
+        <h1 class="text-center">Brak nieaktwnych promocji</h1>
+        <div class="text-center display-1">
+            <i class="fa fa-percent" aria-hidden="true"></i>
+        </div>
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,97 @@
+{% extends 'clientsApp/clientBase.html.twig' %}
+
+{% block content %}
+    <div class="row justify-content-center">
+        <div class="col-md-10 pb-4 mt-0">
+            <div class="row justify-content-between px-3">
+                <div class="h1 pb-3">Moje transakcje - Transakcja numer {{ transaction.id }}</div>
+            </div>
+            <div class="mx-3">
+                <div class="mx-3">
+                    <div class="row mb-3">
+                        <div class="col-sm-3">
+                            {% if transaction.seanse.wydarzeniaspecjalne %}
+                                Wydarzenie specjalne:
+                            {% else %}
+                                Film:
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-9 pl-sm-2">
+                            {% if transaction.seanse.wydarzeniaspecjalne %}
+                                {{ transaction.seanse.wydarzeniaspecjalne }} -
+                                {% for smf in transaction.seanse.seansMaFilmy %}
+                                    {{ smf.filmy }}{% if not loop.last %}, {% endif %}
+                                {% endfor %}
+                            {% else %}
+                                {% for smf in transaction.seanse.seansMaFilmy|slice(0,1) %}
+                                    {{ smf.filmy }}
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-3">Data i godzina:</div>
+                        <div class="col-sm-9 pl-sm-2">{{ transaction.seanse.poczatekseansu|date('d.m.Y H:i') }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-3">Sala:</div>
+                        <div class="col-sm-9 pl-sm-2">{{ transaction.seanse.sale.numersali }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-3">Zapłacono:</div>
+                        <div class="col-sm-9 pl-sm-2" id="price">{{ transaction.sum|number_format(2, '.', ' ') }}zł
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-3">Promocja:</div>
+                        <div class="col-sm-9 pl-sm-2" id="promotionName">
+                            {% if transaction.promocje %}
+                                {{ transaction.promocje.nazwa }}
+                            {% else %}
+                                Nie wybrano
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-3">Bilety:</div>
+                        <div class="col-sm-9 pl-sm-2"></div>
+                    </div>
+                    <div class="my-5" id="ticketTable">
+                        <table id="tickets" class="table">
+                            <thead>
+                            <tr>
+                                <th style="width: 10%">Rząd</th>
+                                <th style="width: 10%">Miejsce</th>
+                                <th style="width: 30%">Rodzaj biletu</th>
+                                <th style="width: 15%">Cena</th>
+
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for selectedSeat in selectedSeats %}
+                                <tr>
+                                    <td>{{ selectedSeat.miejsca.rzedy.numerrzedu }}</td>
+                                    <td>{{ selectedSeat.miejsca.numermiejsca }}</td>
+                                    <td>{{ selectedSeat.rodzajebiletow.nazwa }}</td>
+                                    <td>{{ selectedSeat.cena }} zł</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <a class="btn btn-secondary"
+               href="{{ path('clients_app/transactions', {
+                   'dateFrom': 0,
+                   'dateTo': 0
+               } ) }}">
+                <i class="fa fa-angle-left" aria-hidden="true"></i>
+                Wróć
+            </a>
+            <a class="btn btn-primary pull-right" id="ticketButton"
+               href="{{ path('clients_app/ticket') }}"
+               target="_blank">Pokaż bilety</a>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,630 @@
+{% extends 'workersApp/workerBase.html.twig' %}
+
+{% block content %}
+    <div class="row justify-content-center">
+        <div class="col-md-10 pb-4 mt-0">
+            <div class="row justify-content-between px-3">
+                <div class="h1 pb-3">Realizacja rezerwacji {{ reservation.id }}</div>
+                <div>
+                    <button type="button" class="btn btn-danger pull-right"
+                            id="deletePromotionButton" hidden
+                            onclick="deletePromotion()">
+                        Usuń promocje
+                    </button>
+                    <button class="btn btn-primary" type="button" data-toggle="modal"
+                            id="promotionModalButton"
+                            data-target="#promotions">
+                        Wybierz promocje
+                    </button>
+                    <!-- Modal -->
+                    <div class="modal fade" id="promotions" tabindex="-1" role="dialog"
+                         aria-labelledby="modelTitleId" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                            <div class="modal-content bg-dark text-light text-left">
+                                <div class="modal-header">
+                                    <h4 class="modal-title" id="modelTitleId">
+                                        Wybierz promocje
+                                    </h4>
+                                    <button type="button" class="close text-light" data-dismiss="modal"
+                                            id="closePromotionModalButton"
+                                            aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    {% if promotions|length != 0 %}
+                                        <div style="overflow-x: auto;" class="mt-0">
+                                            <table id="promotions" class="table">
+                                                <thead>
+                                                <tr>
+                                                    <th style="width: 20%">Nazwa<br> promocji</th>
+                                                    <th style="width: 20%">Wysokość<br> promocji</th>
+                                                    <th style="width: 30%">Specjalne<br> warunki</th>
+                                                    <th style="width: 20%">Czas trwania<br> promocji</th>
+                                                    <th style="width: 10%"></th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                {% for promotion in promotions %}
+                                                    <tr>
+                                                        <td scope="row">{{ promotion.nazwa }}</td>
+                                                        <td>{{ promotion.wartosc }} {% if promotion.czykwotowa %}zł{% else %}%{% endif %}</td>
+                                                        <td>
+                                                            {% if promotion.czykobieta is not null %}
+                                                                {% if promotion.czykobieta %}
+                                                                    Tylko dla pań
+                                                                {% else %}
+                                                                    Tylko dla panów
+                                                                {% endif %}
+                                                                {% if promotion.staz is not null %}
+                                                                    posiadających konto od {{ promotion.staz|date("d.m.Y") }} lub dłużej
+                                                                {% endif %}
+                                                            {% elseif promotion.staz is not null %}
+                                                                Tylko dla użytkowników z kontem od {{ promotion.staz|date("d.m.Y") }} lub dłużej
+                                                            {% else %}
+                                                                Brak
+                                                            {% endif %}
+                                                        </td>
+                                                        <td>
+                                                            {{ promotion.poczatekPromocji|date("d.m.Y") }}
+                                                            - {{ promotion.koniecPromocji|date("d.m.Y") }}
+                                                        </td>
+                                                        <td>
+                                                            <div class="pull-right">
+                                                                <button type="button"
+                                                                        onclick="addPromotion({% if promotion.czykwotowa %}{{ promotion.czykwotowa }}{% else %}0{% endif %}, {{ promotion.wartosc }}, {{ promotion.id }}, '{{ promotion.nazwa }}')"
+                                                                        class="btn btn-primary btn-sm">
+                                                                    Wybierz
+                                                                </button>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    {% else %}
+                                        <div style="overflow-x: auto;" class="mt-0">
+                                            Brak akrywnych promocji.
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="modal-footer">
+
+                                    <button type="button" class="btn btn-secondary"
+                                            data-dismiss="modal">
+                                        Anuluj
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- End of Modal -->
+
+                </div>
+            </div>
+            {% if error %}
+                <div class="alert alert-danger alert-dismissible fade show">
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    {{ error }}
+                </div>
+            {% endif %}
+            <div class="mx-3">
+                <div class="mx-3">
+                    <div class="row mb-3">
+                        <div class="col-sm-3">Imie i nazwisko:</div>
+                        <div class="col-sm-9 pl-sm-2">{{ reservation.imie }} {{ reservation.nazwisko }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-3">E-mail:</div>
+                        <div class="col-sm-9 pl-sm-2">{{ reservation.email }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-3">Numer telefonu:</div>
+                        <div class="col-sm-9 pl-sm-2">{{ reservation.telefon }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-3">
+                            {% if reservation.seanse.wydarzeniaspecjalne %}
+                                Wydarzenie specjalne:
+                            {% else %}
+                                Film:
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-9 pl-sm-2">
+                            {% if reservation.seanse.wydarzeniaspecjalne %}
+                                {{ reservation.seanse.wydarzeniaspecjalne }} -
+                                {% for smf in reservation.seanse.seansMaFilmy %}
+                                    {{ smf.filmy }}{% if not loop.last %}, {% endif %}
+                                {% endfor %}
+                            {% else %}
+                                {% for smf in reservation.seanse.seansMaFilmy|slice(0,1) %}
+                                    {{ smf.filmy }}
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-3">Data i godzina:</div>
+                        <div class="col-sm-9 pl-sm-2">{{ reservation.seanse.poczatekseansu|date('d.m.Y H:i') }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-3">Sala:</div>
+                        <div class="col-sm-9 pl-sm-2">{{ reservation.seanse.sale.numersali }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-3">Do zaplaty:</div>
+                        <div class="col-sm-9 pl-sm-2" id="price"></div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-3">Promocja:</div>
+                        <div class="col-sm-9 pl-sm-2" id="promotionName">Nie wybrano</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-3">Bilety:</div>
+                        <div class="col-sm-9 pl-sm-2"></div>
+                    </div>
+                    <div class="my-5" id="ticketTable">
+                        <table id="tickets" class="table">
+                            <thead>
+                            <tr>
+                                <th style="width: 10%">Rząd</th>
+                                <th style="width: 10%">Miejsce</th>
+                                <th style="width: 30%">Rodzaj biletu</th>
+                                <th style="width: 5%"></th>
+                                <th style="width: 15%">Cena (w zł)</th>
+                                <th style="width: 20%"></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for selectedSeat in selectedSeats %}
+                                <tr>
+                                    <td>{{ selectedSeat.miejsca.rzedy.numerrzedu }}</td>
+                                    <td>{{ selectedSeat.miejsca.numermiejsca }}</td>
+                                    {% if selectedSeat.status %}
+                                        <td>
+                                            <select id="ticketFor{{ selectedSeat.miejsca.id }}"
+                                                    name="ticketFor{{ selectedSeat.miejsca.id }}"
+                                                    class="form-control"
+                                                    onchange="changeTicketPrice({{ selectedSeat.miejsca.id }}, {{ loop.index0 }}, this)">
+                                                {% for ticket in reservation.seanse.pulebiletow.pulaMaRodzajeBiletow %}
+                                                    <option value="{{ loop.index0 }}">{{ ticket.rodzajebiletow.nazwa }}
+                                                        ({{ ticket.cena }})
+                                                    </option>
+                                                {% endfor %}
+                                            </select>
+
+
+                                        </td>
+                                        <td>
+                                            <input id="ifAccomplish{{ selectedSeat.miejsca.id }}" style="vertical-align: middle"
+                                            onclick="changeAccomplishment({{ selectedSeat.miejsca.id }}, {{ loop.index0 }}, this)"
+                                            type="checkbox" checked>
+                                        </td>
+                                        <td>
+                                            <div id="price{{ loop.index0 }}"></div>
+                                        </td>
+                                        <td>
+                                            <button type="button" class="btn btn-danger btn-sm pull-right"
+                                                    id="deleteVoucherButton{{ selectedSeat.miejsca.id }}" hidden
+                                                    onclick="deleteVoucher({{ selectedSeat.miejsca.id }}, {{ loop.index0 }})">
+                                                Usuń voucher
+                                            </button>
+                                            <button type="button" class="btn btn-primary btn-sm pull-right"
+                                                    id="voucherModalButton{{ selectedSeat.miejsca.id }}"
+                                                    data-toggle="modal"
+                                                    data-target="#voucherModal{{ selectedSeat.miejsca.id }}">
+                                                Wprowadź voucher
+                                            </button>
+                                        </td>
+                                        <!-- Modal -->
+                                        <div class="modal fade" id="voucherModal{{ selectedSeat.miejsca.id }}"
+                                             tabindex="-1"
+                                             role="dialog"
+                                             aria-labelledby="modelTitleId" aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                                                <div class="modal-content bg-dark text-light text-left">
+                                                    <div class="modal-header">
+                                                        <h4 class="modal-title" id="modelTitleId">
+                                                            Wprowdzanie vouchera
+                                                        </h4>
+                                                        <button id="closeModalButton{{ selectedSeat.miejsca.id }}"
+                                                                type="button"
+                                                                class="close text-light" data-dismiss="modal"
+                                                                aria-label="Close">
+                                                            <span aria-hidden="true">&times;</span>
+                                                        </button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        Wprowadź kod vouchera
+                                                        <div id="voucherAlert{{ selectedSeat.miejsca.id }}"
+                                                             style="color: red"></div>
+                                                        <input type="text" value=""
+                                                               name="voucherCode{{ selectedSeat.miejsca.id }}"
+                                                               id="voucherCode{{ selectedSeat.miejsca.id }}"
+                                                               class="form-control"
+                                                               onkeyup="onKeyUpVoucherInput({{ selectedSeat.miejsca.id }})"
+                                                               onkeypress='return event.charCode >= 48 && event.charCode <= 57'>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary"
+                                                                data-dismiss="modal">
+                                                            Anuluj
+                                                        </button>
+                                                        <button type="button" class="btn btn-primary delete-promotion"
+                                                                onclick="checkVoucher({{ selectedSeat.miejsca.id }}, {{ loop.index0 }})"
+                                                                data-id="{{ selectedSeat.miejsca.id }}">
+                                                            Wybierz
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- End of Modal -->
+                                    {% else %}
+                                        <td>
+                                            {{ selectedSeat.rodzajbiletu.nazwa }}
+                                        </td>
+                                        <td></td>
+                                        <td>
+                                            <div id="fixedPrice{{ loop.index0 }}">{{ selectedSeat.cena }}</div>
+                                        </td>
+                                        <td>
+                                            <div class="font-weight-bold pull-right">Zrealizowany</div>
+                                        </td>
+                                    {% endif %}
+
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-sm-3">Rodzaj płatności:</div>
+                        <div class="col-sm-9 pl-sm-2">
+                            <input type="radio" id="payment{{ paymentWay[1].id }}" name="payment" required="required"
+                                   value="{{ paymentWay[1].id }}">
+                            <label for="payment{{ paymentWay[1].id }}"
+                                   class="required">{{ paymentWay[1].nazwa }}</label>
+                            <input type="radio" id="payment{{ paymentWay[0].id }}" name="payment" required="required"
+                                   value="{{ paymentWay[0].id }}">
+                            <label for="payment{{ paymentWay[0].id }}"
+                                   class="required">{{ paymentWay[0].nazwa }}</label>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3" id="paymentInput" hidden>
+                        <div class="col-sm-3">Zapłacono:</div>
+                        <div class="col-sm-9 pl-sm-2">
+                            <input type="number" min="0" step="0.01" value="0.00" name="paymentValue" id="paymentValue"
+                                   class="form-control"
+                                   onkeypress='return event.charCode >= 48 && event.charCode <= 57
+                                                             || event.charCode == 46 || event.charCode == 44'>
+                        </div>
+                    </div>
+                    <div class="row mb-3" id="paymentChange" hidden>
+                        <div class="col-sm-3">Reszta:</div>
+                        <div class="col-sm-9 pl-sm-2" id="paymentChangeValue">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <form id="accomplishForm" name="form" method="post">
+                <input type="text" id="seatsIds" name="seatsIds" hidden value="">
+                <input type="text" id="vouchersIds" name="vouchersIds" hidden value="">
+                <input type="text" id="ticketsIds" name="ticketsIds" hidden value="">
+                <input type="text" id="promotionId" name="promotionId" hidden value="">
+                <input type="text" id="paymentId" name="paymentId" hidden value="">
+                <input type="text" id="seanceId" name="seanceId" hidden value="{{ reservation.seanse.id }}">
+                <a class="btn btn-secondary"
+                   href="{{ path('workers_app/reservations', {
+                       'date': 0,
+                       'id': 0,
+                       'name': 0,
+                       'surname': 0
+                   } ) }}">
+                    <i class="fa fa-angle-left" aria-hidden="true"></i>
+                    Wróć
+                </a>
+                <button type="button" id="form_save" name="form[save]" class="btn btn-primary float-right"
+                        onclick="setConfirm()">Zatwierdz
+                </button>
+                <div id="submitAlert" class="float-right text-danger font-weight-bold" hidden>Musisz wybrać przynajmniej jeden bilet.</div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+
+        var price;
+        var ifAccomplish = [];
+        const statusArray = [];
+        var priceArray = [];
+        var ticketPriceArray = [];
+        var voucherArray = [];
+        var promotion = null;
+        var promotionDate = {};
+
+        var seatsIdArray = [];
+        var ticketsIdArray = [];
+        var vouchersIdArray = [];
+
+        window.onload = function () {
+            price = 0;
+            document.getElementById('price').innerText = price.toFixed(2) + " zł";
+            document.getElementById('payment{{ paymentWay[0].id }}').checked = true;
+
+            {% for ticket in reservation.seanse.pulebiletow.pulaMaRodzajeBiletow %}
+            ticketPriceArray.push({
+                id: {{ ticket.id }} ,
+                price: {{ ticket.cena }}});
+            {% endfor %}
+
+            {% for selectedSeat in selectedSeats %}
+            {% if selectedSeat.miejsca != null %}
+            {% if selectedSeat.status %}
+            ifAccomplish.push(1);
+            {% else %}
+            ifAccomplish.push(0);
+            {% endif %}
+            statusArray.push({{ selectedSeat.status }});
+            seatsIdArray.push({{ selectedSeat.miejsca.id }});
+            ticketsIdArray.push(ticketPriceArray[0].id);
+            vouchersIdArray.push([]);
+
+            priceArray.push({
+                price: ticketPriceArray[0].price,
+                promotionPrice: ticketPriceArray[0].price,
+                voucherPrice: ticketPriceArray[0].price
+            });
+            voucherArray.push({});
+
+            {% endif %}{{ selectedSeat.miejsca.id }}
+            {% endfor %}
+
+            updatePromotionPrice(promotionDate.ifAmount, promotionDate.value);
+
+        };
+
+        function changeTicketPrice(seatId, index, selectInput) {
+            priceArray[index].price = ticketPriceArray[selectInput.value].price;
+            ticketsIdArray[index] = ticketPriceArray[selectInput.value].id;
+            updatePromotionPrice(promotionDate.ifAmount, promotionDate.value);
+        }
+
+        $(document).ready(function () {
+            $('input[type=radio][name=payment]').change(function () {
+                if (this.value == '{{ paymentWay[1].id }}') {
+                    document.getElementById('paymentInput').hidden = false;
+                    document.getElementById('paymentChange').hidden = false;
+                    document.getElementById('paymentChangeValue').innerText = (document.getElementById('paymentValue').value - price).toFixed(2) + ' zł';
+                    document.getElementById('paymentId').value = {{ paymentWay[1].id }};
+                }
+                else if (this.value == '{{ paymentWay[0].id }}') {
+                    document.getElementById('paymentInput').hidden = true;
+                    document.getElementById('paymentChange').hidden = true;
+                    document.getElementById('paymentId').value = {{ paymentWay[0].id }};
+                }
+            });
+
+            $('input[type=number][name=paymentValue]').keyup(function () {
+                document.getElementById('paymentChangeValue').innerText = (this.value - price).toFixed(2) + ' zł';
+            });
+        });
+
+        function onKeyUpVoucherInput(seatId) {
+            document.getElementById('voucherAlert' + seatId).innerHTML = '';
+        }
+
+        function updatePromotionPrice(ifAmount, value) {
+            if ((typeof ifAmount !== 'undefined') && (typeof value !== 'undefined')) {
+                if (ifAmount) {
+                    for (var i = 0; i < priceArray.length; i++) {
+                        if (value < priceArray[i].price) {
+                            priceArray[i].promotionPrice = priceArray[i].price - value;
+                        } else {
+                            priceArray[i].promotionPrice = 0;
+                        }
+                        updateVoucherPrice(i, voucherArray[i].ifAmount, voucherArray[i].value);
+                    }
+                } else {
+                    for (var i = 0; i < priceArray.length; i++) {
+                        priceArray[i].promotionPrice = priceArray[i].price - (priceArray[i].price * (value / 100));
+                        updateVoucherPrice(i, voucherArray[i].ifAmount, voucherArray[i].value);
+                    }
+                }
+            } else {
+                for (var i = 0; i < priceArray.length; i++) {
+                    priceArray[i].promotionPrice = priceArray[i].price;
+                    updateVoucherPrice(i, voucherArray[i].ifAmount, voucherArray[i].value);
+                }
+            }
+            updatePrice()
+        }
+
+        function addPromotion(ifAmount, value, promotionId, name) {
+            promotion = promotionId;
+            promotionDate = {ifAmount: ifAmount, value: value};
+            document.getElementById('promotionModalButton').hidden = true;
+            document.getElementById('deletePromotionButton').hidden = false;
+            document.getElementById('closePromotionModalButton').click();
+            document.getElementById('promotionName').innerHTML = name;
+
+            updatePromotionPrice(ifAmount, value);
+        }
+
+        function deletePromotion() {
+            promotionDate = {};
+            promotion = null;
+            document.getElementById('promotionModalButton').hidden = false;
+            document.getElementById('deletePromotionButton').hidden = true;
+            document.getElementById('promotionName').innerHTML = 'Nie wybrano';
+            for (var i = 0; i < priceArray.length; i++) {
+                priceArray[i].promotionPrice = priceArray[i].price;
+                updateVoucherPrice(i, voucherArray[i].ifAmount, voucherArray[i].value);
+            }
+            updatePrice();
+        }
+
+        function updatePrice() {
+            price = 0;
+            for (var i = 0; i < priceArray.length; i++) {
+                if (statusArray[i] && ifAccomplish[i]) {
+                    price += priceArray[i].voucherPrice;
+                }
+            }
+            document.getElementById('price').innerText = price.toFixed(2) + " zł";
+            document.getElementById('paymentChangeValue').innerText = (document.getElementById('paymentValue').value - price).toFixed(2) + ' zł';
+            var cardRadio = document.getElementById('payment{{ paymentWay[0].id }}');
+            var cashRadio = document.getElementById('payment{{ paymentWay[1].id }}');
+
+            if (price == 0) {
+                cashRadio.disabled = true;
+                cashRadio.checked = false;
+                cardRadio.disabled = true;
+                cardRadio.checked = true;
+                document.getElementById('paymentInput').hidden = true;
+                document.getElementById('paymentChange').hidden = true;
+            } else {
+                cashRadio.disabled = false;
+                cardRadio.disabled = false;
+
+            }
+        }
+
+        function deleteVoucher(seatId, index) {
+            priceArray[index].voucherPrice = priceArray[index].promotionPrice;
+            document.getElementById('price' + index).innerHTML = priceArray[index].voucherPrice.toFixed(2);
+            voucherArray[index] = [];
+            document.getElementById('voucherModalButton' + seatId).hidden = false;
+            document.getElementById('deleteVoucherButton' + seatId).hidden = true;
+            updatePrice();
+            vouchersIdArray[index] = [];
+        }
+
+        function updateVoucherPrice(index, ifAmount, value) {
+            if ((typeof ifAmount !== 'undefined') && (typeof value !== 'undefined')) {
+                var newTicketPrice = 0;
+                if (ifAmount) {
+                    if (parseFloat(value) < priceArray[index].promotionPrice) {
+                        newTicketPrice = priceArray[index].promotionPrice - parseFloat(value);
+                        price -= parseFloat(value);
+                    } else {
+                        newTicketPrice = 0;
+                        price -= priceArray[index].promotionPrice;
+                    }
+                } else {
+                    var priceReduction = priceArray[index].promotionPrice * ((parseFloat(value)) / 100);
+                    newTicketPrice = priceArray[index].promotionPrice - priceReduction;
+                    price -= priceReduction;
+                }
+                priceArray[index].voucherPrice = newTicketPrice;
+                document.getElementById('price' + index).innerHTML = priceArray[index].voucherPrice.toFixed(2);
+            } else {
+                if (statusArray[index]) {
+                    priceArray[index].voucherPrice = priceArray[index].promotionPrice;
+                    document.getElementById('price' + index).innerHTML = priceArray[index].voucherPrice.toFixed(2);
+                }
+            }
+        }
+
+        function checkVoucher(seatId, index) {
+            $.ajax({
+                url: '{{ path('workers_app/transactions/check_voucher') }}/{{ reservation.seanse.id }}',
+                type: "POST",
+                dataType: "json",
+                data: {
+                    "voucherCode": document.getElementById('voucherCode' + seatId).value
+                },
+                async: true,
+                success: function (data) {
+                    console.log(data);
+                    if ('error' in data) {
+                        document.getElementById('voucherAlert' + seatId).innerHTML = data['error'];
+                    } else {
+                        if (vouchersIdArray.includes(data.id)) {
+                            document.getElementById('voucherAlert' + seatId).innerHTML = "Voucher został już użyty na innym bilecie w tej transakcji.";
+                        } else {
+                            document.getElementById('closeModalButton' + seatId).click();
+                            document.getElementById('voucherModalButton' + seatId).hidden = true;
+                            document.getElementById('deleteVoucherButton' + seatId).hidden = false;
+                            voucherArray[index].ifAmount = data.czykwotowa;
+                            voucherArray[index].value = data.wartosc;
+                            vouchersIdArray[index] = data.id;
+                            updateVoucherPrice(index, data.czykwotowa, data.wartosc);
+                            updatePrice();
+                        }
+                    }
+                }
+            });
+        }
+
+        function changeAccomplishment(seatId, index, checkbox) {
+            if (statusArray[index]) {
+                if (checkbox.checked) {
+                    ifAccomplish[index] = 1;
+                    document.getElementById('voucherModalButton' + seatId).hidden = false;
+                    document.getElementById('ticketFor' + seatId).disabled = false;
+                } else {
+                    ifAccomplish[index] = 0;
+                    if(voucherArray[index]) {
+                        deleteVoucher(seatId, index);
+                    }
+                    document.getElementById('voucherModalButton' + seatId).hidden = true;
+                    document.getElementById('ticketFor' + seatId).disabled = true;
+                }
+                updatePromotionPrice(promotionDate.ifAmount, promotionDate.value);
+
+                if(!ifAccomplish.includes(1)){
+                    document.getElementById('form_save').disabled = true;
+                    document.getElementById('form_save').hidden = true;
+                    document.getElementById('submitAlert').hidden = false;
+                } else {
+                    document.getElementById('form_save').disabled = false;
+                    document.getElementById('form_save').hidden = false;
+                    document.getElementById('submitAlert').hidden = true;
+                }
+            }
+            console.log(ifAccomplish);
+        }
+
+        function setConfirm() {
+            document.getElementById('form_save').disabled = true;
+            var seatsIdInput = document.getElementById('seatsIds');
+            var vouchersIdInput = document.getElementById('vouchersIds');
+            var ticketsIdInput = document.getElementById('ticketsIds');
+
+            if (document.getElementsByName('payment')[0].checked) {
+                document.getElementById('paymentId').value = document.getElementsByName('payment')[0].value;
+            } else {
+                document.getElementById('paymentId').value = document.getElementsByName('payment')[1].value;
+            }
+
+            document.getElementById('promotionId').value = promotion;
+            seatsIdInput.value = '';
+
+            var variable = 0;
+            for (var i = 0; i < seatsIdArray.length; i++) {
+                if (statusArray[i] && ifAccomplish[i]) {
+                    if (variable != 0) {
+                        seatsIdInput.value += ',';
+                        vouchersIdInput.value += ',';
+                        ticketsIdInput.value += ',';
+                    }
+                    seatsIdInput.value += seatsIdArray[i];
+                    ticketsIdInput.value += ticketsIdArray[i];
+                    if (vouchersIdArray[i]) {
+                        vouchersIdInput.value += vouchersIdArray[i];
+                    } else {
+                        vouchersIdInput.value += 'null';
+                    }
+                    variable = 1;
+                }
+            }
+            document.getElementById('accomplishForm').submit();
+        }
+    </script>
+{% endblock %}

@@ -1,0 +1,51 @@
+{% extends 'clientsApp/clientBase.html.twig' %}
+
+{% block content %}
+    {% if movies %}
+        <div class="row pb-4 mt-0">
+            <div class="h1 col-lg">Wszystkie filmy w kinie</div>
+            <div class="col-lg h5">
+                <div class="pull-right">
+                    {{ form_start(form, {'attr': {'class': 'form-inline'}}) }}
+                    <div class="form-group mr-2">
+                        {{ form_label(form.movieType) }}
+                        {{ form_widget(form.movieType) }}
+                        {{ form_widget(form.submit) }}
+                    </div>
+                    <a href="{{ path('clients_app/movies') }}" class="btn btn-primary pull-right mb-2">
+                        <i class="fa fa-th" aria-hidden="true"></i> Pokaż grane obecnie
+                    </a>
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+        <div class="row px-5">
+            {% for movie in movies %}
+                <a class="col-lg-3 col-sm-6 mb-2 pt-4 p-2 text-dark hover"
+                   href="{{ path('clients_app/movies/show', {'id': movie.id}) }}">
+                    <div class="col-12">
+                        <img src="{% if movie.plakat %}{{ asset('img/'~movie.plakat) }}{% else %}{{ asset('img/no_poster.jpg') }}{% endif %}"
+                             class="img-fluid">
+                    </div>
+                    <div class="col-12 h5">{{ movie.tytul }} ({{ movie.datapremiery|date("Y") }})
+                        {% if not movie.seansMaFilmy|length %} - wkrótce{% endif %}</div>
+                </a>
+            {% endfor %}
+        </div>
+        {% include 'clientsApp/inc/paginationWithParams.html.twig' %}
+    {% else %}
+        <div class="pull-right">
+            {{ form_start(form, {'attr': {'class': 'form-inline'}}) }}
+            <div class="form-group">
+                {{ form_label(form.movieType) }}
+                {{ form_widget(form.movieType) }}
+            </div>
+            {{ form_widget(form.submit) }}
+            {{ form_end(form) }}
+        </div>
+        <h1 class="text-center">Brak filmów w kinie</h1>
+        <div class="text-center display-1">
+            <i class="fa fa-film" aria-hidden="true"></i>
+        </div>
+    {% endif %}
+{% endblock %}

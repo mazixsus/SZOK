@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Bilety</title>
+    <style>
+        table {
+            border: 1px solid black;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 5px;
+            text-align: left;
+        }
+
+        td {
+            font-size: large;
+        }
+
+        .page {
+            overflow: hidden;
+            page-break-after: always;
+        }
+    </style>
+</head>
+<body>
+
+{% for bilet in transaction.bilety %}
+    {% if not bilet.czyanulowany %}
+    <table style="width:100%">
+        <tr>
+            <td><h1 style="text-align: center;">SZOK</h1></td>
+            <td colspan="3"><h3>
+                    Seans: {% if transaction.seanse.wydarzeniaspecjalne %}
+                        {{ transaction.seanse.wydarzeniaspecjalne }} - {{ transaction.seanse.typyseansow }}
+                    {% else %}
+                        {% for smf in transaction.seanse.seansMaFilmy|slice(0,1) %}
+                            {{ smf.filmy }} - {{ transaction.seanse.typyseansow }}
+                        {% endfor %}
+                    {% endif %}
+                </h3></td>
+        </tr>
+        <tr>
+            <td rowspan="5" style="text-align: center;"><img
+                        src="{{ qr_code_data_uri(bilet.code, { writer: 'svg', size: 150 }) }}"/></td>
+        </tr>
+        <tr>
+            <td>Sala: {{ transaction.seanse.sale.numersali }}</td>
+            <td>Rząd: {{ bilet.miejsca.rzedy.numerrzedu }}</td>
+            <td>Miejsce: {{ bilet.miejsca.numermiejsca }}</td>
+        </tr>
+        <tr>
+            <td>Data: {{ transaction.seanse.poczatekseansu|date('d.m.Y') }}</td>
+            <td colspan="2">Godzina: {{ transaction.seanse.poczatekseansu|date('H:i') }}</td>
+        </tr>
+        <tr>
+            <td>Cena: {{ bilet.cena }} zł</td>
+            <td colspan="2">Rodzaj: {{ bilet.rodzajebiletow }}</td>
+        </tr>
+        <tr>
+            <td colspan="3">{{ bilet.code }}</td>
+        </tr>
+    </table>
+    <br>
+    {% endif %}
+    {% if loop.index is divisible by(4) and loop.index != loop.last %}
+        <div class="page">
+        </div>
+    {% endif %}
+{% endfor %}
+
+</body>
+</html>

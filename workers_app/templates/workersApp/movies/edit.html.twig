@@ -1,0 +1,289 @@
+{% extends 'workersApp/workerBase.html.twig' %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('css/error_messages.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/checkboxes.css') }}">
+{% endblock %}
+
+{% block javascripts %}
+    <script src="{{ asset('js/form_invalid_func.js') }}"></script>
+{% endblock %}
+
+{% block content %}
+    <div class="pb-4 mt-0">
+        <div class="h1 pb-3">Edycja - {{ title }}</div>
+        {{ form_start(form) }}
+        <div class="row">
+            <div class="col-xl-3 col-lg-4 col-md-6 col-sm-8">
+                <div class="mb-3">
+                    {{ form_label(form.tytul) }}
+
+                    {% if form.tytul.vars.errors|length > 0 %}
+                        {{ form_widget(form.tytul, {'attr': {'class': 'is-invalid form-control'}}) }}
+                    {% else %}
+                        {{ form_widget(form.tytul) }}
+                    {% endif %}
+                    <div class="invalid-feedback">
+                        {{ form_errors(form.tytul) }}
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="col-12 px-0">
+                        {{ form_label(form.plakat) }}
+                    </div>
+                    <button type="button" id="clearPoster" class="btn btn-danger btn-sm pull-right" hidden> Usuń
+                        &times;
+                    </button>
+                    <img id="moviePoster" class="img-fluid mb-1">
+                    {% if poster %}
+                    <div class="my-3">
+                        <input type="checkbox" id="keepPoster" onclick="keepPosterClicked(this)" checked value="1">
+                        <label for="keepPoster">
+                            zatrzymaj obecny
+                        </label>
+                    </div>
+                    {% endif %}
+                    {% if form.plakat.vars.errors|length > 0 %}
+                        {{ form_widget(form.plakat, {'attr': {'class': 'is-invalid form-control-file bg-light text-dark'}}) }}
+                    {% else %}
+                        {{ form_widget(form.plakat) }}
+                    {% endif %}
+                    <div class="invalid-feedback">
+                        {{ form_errors(form.plakat) }}
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-9 col-lg-8 mt-lg-4">
+                <div class="row">
+                    <div class="col-sm-6 mb-3">
+                        <div class="row">
+                            <div class="col-md-4">
+                                {{ form_label(form.datapremiery) }}
+                            </div>
+                            <div class="col-md-8">
+                                {% if form.datapremiery.vars.errors|length > 0 %}
+                                    {{ form_widget(form.datapremiery, {'attr': {'class': 'is-invalid form-control col-xl-6 col-md-10 col-10'}}) }}
+                                {% else %}
+                                    {{ form_widget(form.datapremiery) }}
+                                {% endif %}
+                                <div class="invalid-feedback">
+                                    {{ form_errors(form.datapremiery) }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 mb-3">
+                        <div class="row">
+                            <div class="col-md-4">
+                                {{ form_label(form.kategoriewiekowe) }}
+                            </div>
+                            <div class="col-md-8">
+                                {% if form.kategoriewiekowe.vars.errors|length > 0 %}
+                                    {{ form_widget(form.kategoriewiekowe, {'attr': {'class': 'is-invalid form-control col-xl-4 col-md-6 col-8'}}) }}
+                                {% else %}
+                                    {{ form_widget(form.kategoriewiekowe) }}
+                                {% endif %}
+                                <div class="invalid-feedback">
+                                    {{ form_errors(form.kategoriewiekowe) }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-6 mb-3">
+                        <div class="row">
+                            <div class="col-md-4">
+                                {{ form_label(form.czastrwania) }}
+                            </div>
+                            <div class="col-md-8">
+                                <div class="input-group">
+                                    {% if form.czastrwania.vars.errors|length > 0 %}
+                                        {{ form_widget(form.czastrwania, {'attr': {'class': 'is-invalid form-control col-xl-4 col-md-6 col-8'}}) }}
+                                    {% else %}
+                                        {{ form_widget(form.czastrwania) }}
+                                    {% endif %}
+                                    <div class="input-group-append">
+                                        <div class="input-group-text">min.</div>
+                                    </div>
+                                    <div class="invalid-feedback">
+                                        {{ form_errors(form.czastrwania) }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 mb-3">
+                        <div class="row">
+                            <div class="col-md-4">
+                                {{ form_label(form.czasreklam) }}
+                            </div>
+                            <div class="col-md-8">
+                                <div class="input-group">
+                                    {% if form.czasreklam.vars.errors|length > 0 %}
+                                        {{ form_widget(form.czasreklam, {'attr': {'class': 'is-invalid form-control col-xl-4 col-md-6 col-8'}}) }}
+                                    {% else %}
+                                        {{ form_widget(form.czasreklam) }}
+                                    {% endif %}
+                                    <div class="input-group-append">
+                                        <div class="input-group-text">min.</div>
+                                    </div>
+                                    <div class="invalid-feedback">
+                                        {{ form_errors(form.czasreklam) }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        {{ form_label(form.typyseansow) }}
+                        {% if form.typyseansow.vars.errors|length > 0 %}
+                            {{ form_widget(form.typyseansow, {'attr': {'class': 'is-invalid form-control checkboxes-group'}}) }}
+                        {% else %}
+                            {{ form_widget(form.typyseansow) }}
+                        {% endif %}
+                        <div class="invalid-feedback">
+                            {{ form_errors(form.typyseansow) }}
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        {{ form_label(form.rodzajefilmow) }}
+                        {% if form.rodzajefilmow.vars.errors|length > 0 %}
+                            {{ form_widget(form.rodzajefilmow, {'attr': {'class': 'is-invalid form-control checkboxes-group'}}) }}
+                        {% else %}
+                            {{ form_widget(form.rodzajefilmow) }}
+                        {% endif %}
+                        <div class="invalid-feedback">
+                            {{ form_errors(form.rodzajefilmow) }}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12 px-0 mb-3">
+                    {{ form_label(form.opis) }}
+                    {% if form.opis.vars.errors|length > 0 %}
+                        {{ form_widget(form.opis, {'attr': {'class': 'is-invalid form-control'}}) }}
+                    {% else %}
+                        {{ form_widget(form.opis) }}
+                    {% endif %}
+                    <div class="invalid-feedback">
+                        {{ form_errors(form.opis) }}
+                    </div>
+                </div>
+                <div class="col-md-12 px-0">
+                    <div class="row">
+                        <div class="col-md-2">
+                            {{ form_label(form.zwiastun) }}
+                        </div>
+                        <div class="col-md-10">
+                            {% if form.zwiastun.vars.errors|length > 0 %}
+                                {{ form_widget(form.zwiastun, {'attr': {'class': 'is-invalid form-control'}}) }}
+                            {% else %}
+                                {{ form_widget(form.zwiastun) }}
+                            {% endif %}
+                            <div class="invalid-feedback">
+                                {{ form_errors(form.zwiastun) }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="pull-right">
+        {{ form_widget(form.submit) }}
+    </div>
+    {{ form_end(form) }}
+    <a class="btn btn-secondary float-left" href="{{ path('workers_app/movies/show', {'id': id}) }}"
+       role="button">Anuluj</a>
+    <script>
+        {% if poster %}
+            $(document).ready(function () {
+                    $('#clearPoster').click(function () {
+                        $(this).attr("hidden", true);
+                        $('#moviePoster').attr("src", "{{ asset('img/no_poster.jpg') }}");
+                        $('#form_plakat').val("");
+                    });
+                    if (document.getElementById('keepPoster').checked) {
+                        $('#moviePoster').attr("src", "{{ asset('img/'~poster) }}");
+                        document.getElementById('form_plakat').disabled = true;
+                    } else if ($('#form_plakat').val() != null && $('#form_plakat').val() != "") {
+                        readURL(document.getElementById('form_plakat'));
+                    }
+                    else {
+                        $('#moviePoster').attr("src", "{{ asset('img/no_poster.jpg') }}");
+                    }
+                }
+            );
+
+            function readURL(input) {
+                if (input.files && input.files[0]) {
+                    $('#restorePoster').hidden = false;
+                    if (parseInt(input.files[0].size) <= 700 * 1024) {
+                        $(input).removeClass('is-invalid');
+                        var reader = new FileReader();
+                        reader.onload = function (e) {
+                            $('#moviePoster').attr('src', e.target.result);
+                        };
+
+                        reader.readAsDataURL(input.files[0]);
+                        $('#clearPoster').attr('hidden', false);
+                    } else {
+                        $(input).addClass('is-invalid');
+                        $(input).val("");
+                        $('#moviePoster').attr("src", "{{ asset('img/no_poster.jpg') }}");
+                        $('#form_plakat').val("");
+                    }
+                }
+            }
+
+            function keepPosterClicked(checkbox) {
+                if (checkbox.checked) {
+                    $('#moviePoster').attr("src", "{{ asset('img/'~poster) }}");
+                    $('#form_plakat').val("");
+                    document.getElementById('form_plakat').disabled = true;
+                } else {
+                    document.getElementById('form_plakat').disabled = false;
+                    $('#moviePoster').attr("src", "{{ asset('img/no_poster.jpg') }}");
+                }
+            }
+        {% else %}
+            $(document).ready(function () {
+                    $('#clearPoster').click(function () {
+                        $(this).attr("hidden", true);
+                        $('#moviePoster').attr("src", "{{ asset('img/no_poster.jpg') }}");
+                        $('#form_plakat').val("");
+                    });
+                    if ($('#form_plakat').val() != null && $('#form_plakat').val() != "") {
+                        readURL(document.getElementById('form_plakat'));
+                    }
+                    else {
+                        $('#moviePoster').attr("src", "{{ asset('img/no_poster.jpg') }}");
+                    }
+                }
+            );
+
+            function readURL(input) {
+                if (input.files && input.files[0]) {
+                    if (parseInt(input.files[0].size) <= 1000 * 1024) {
+                        $(input).removeClass('is-invalid');
+                        var reader = new FileReader();
+                        reader.onload = function (e) {
+                            $('#moviePoster')
+                                .attr('src', e.target.result)
+                        };
+
+                        reader.readAsDataURL(input.files[0]);
+                        $('#clearPoster').attr('hidden', false);
+                    } else {
+                        $(input).addClass('is-invalid');
+                        $(input).val("");
+                        $('#moviePoster').attr("src", "{{ asset('img/no_poster.jpg') }}");
+                        $('#form_plakat').val("");
+                    }
+                }
+            }
+        {% endif %}
+    </script>
+{% endblock %}

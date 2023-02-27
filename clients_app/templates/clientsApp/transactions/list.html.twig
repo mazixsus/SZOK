@@ -1,0 +1,82 @@
+{% extends 'clientsApp/clientBase.html.twig' %}
+
+{% block content %}
+    <div class="row justify-content-between px-3 mb-3">
+        <div>
+            <h1 class="mb-3 font-weight-normal">Moje transakcje</h1>
+        </div>
+    </div>
+    <form method="post">
+        <div class="row justify-content-between pl-2 pr-4 mb-3">
+            <div class="form-inline">
+                <label for="dateFrom" class="mx-sm-2">Data od: </label>
+                <input type="date" name="dateFrom" id="dateForm"
+                       class="form-control" value="{% if values %}{{ values.dateFrom }}{% endif %}"
+                       onkeypress=''>
+                <label for="dateTo" class="mx-sm-2">Data do: </label>
+                <input type="date" name="dateTo" id="dateTo"
+                       class="form-control" value="{% if values %}{{ values.dateTo }}{% endif %}"
+                       onkeypress=''>
+                <button class="btn btn-primary ml-sm-2" id="filterButton" type="submit">
+                    Filtruj
+                </button>
+            </div>
+            <div>
+                <a class="btn btn-primary"
+                   href="{{ path('clients_app/transactions', {'dateFrom': 0, 'dateTo': 0} ) }}">Pokaż wszystkie</a>
+            </div>
+        </div>
+    </form>
+    {% if transactions %}
+        <div style="overflow-x: auto;">
+            <table id="reservations" class="table">
+                <thead>
+                <tr>
+                    <th style="width: 15%">Numer transakcji</th>
+                    <th style="width: 15%">Data realizacji</th>
+                    <th style="width: 45%">Seans</th>
+                    <th style="width: 15%">Cena</th>
+                    <th style="width: 10%"></th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for transaction in transactions %}
+                    <tr>
+                        <td scope="row">{{ transaction.id }} </td>
+                        <td scope="row">{{ transaction.data|date('d.m.Y H:i') }} </td>
+                        <td>
+                            {% if transaction.seanse.wydarzeniaspecjalne %}
+                                {{ transaction.seanse.wydarzeniaspecjalne }} -
+                                {% for smf in transaction.seanse.seansMaFilmy %}
+                                    {{ smf.filmy }}{% if not loop.last %}, {% endif %}
+                                {% endfor %}
+                            {% else %}
+                                {% for smf in transaction.seanse.seansMaFilmy|slice(0,1) %}
+                                    {{ smf.filmy }}
+                                {% endfor %}
+                            {% endif %}
+                            - {{ transaction.seanse.typyseansow.nazwa }}
+                            - {{ transaction.seanse.poczatekseansu|date('d.m.Y H:i') }}
+                            - {{ transaction.seanse.sale }}
+                        </td>
+                        <td>{{ transaction.sum|number_format(2, '.', ' ') }} zł</td>
+                        <td>
+                            <a class="btn btn-primary btn-sm pull-right"
+                               href="{{ path('clients_app/transactions/show', {'id':transaction.id } ) }}">Pokaż</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% set basePath = path('clients_app/transactions', {
+            'dateFrom': app.request.get('dateFrom'),
+            'dateTo': app.request.get('dateTo')
+        } ) %}
+        {% include 'clientsApp/inc/pagination.html.twig' %}
+
+    {% else %}
+        <p class="h1">Brak tranzakcji</p>
+    {% endif %}
+{% endblock %}

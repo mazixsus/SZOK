@@ -1,0 +1,10 @@
+
+###> symfony/framework-bundle ###
+/.idea/
+/public/bundles/
+/var/
+/vendor/
+/src/Entity/*
+/src/Repository/*
+/public/img/*
+###< symfony/framework-bundle ###

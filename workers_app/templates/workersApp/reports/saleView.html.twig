@@ -1,0 +1,156 @@
+{% extends 'workersApp/workerBase.html.twig' %}
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('css/error_messages.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/checkboxes.css') }}">
+{% endblock %}
+{% block javascripts %}
+    <script src="{{ asset('js/form_invalid_func.js') }}"></script>
+    <script src="{{ asset('js/sale_report_func.js') }}"></script>
+{% endblock %}
+{% block content %}
+    <div class="pb-4 mt-0">
+        <div class="h1 pb-3">Raport sprzedaży</div>
+        <div class="mx-3">
+            <div class="h5">
+                <div class="row">
+                    <div class="col-md-3 row px-md-0 mx-md-0">
+                        <div class="col-md-4 mb-1 px-md-0 mx-md-0">Od:</div>
+                        <div class="col-md-8 mb-2 px-md-0 mx-md-0">{{ data.from|date('d.m.Y') }}</div>
+                    </div>
+                    <div class="col-md-3 row px-md-0 mx-md-0">
+                        <div class="col-md-4 mb-1 px-md-0 mx-md-0">Do:</div>
+                        <div class="col-md-8 mb-2 px-md-0 mx-md-0">{{ data.to|date('d.m.Y') }}</div>
+                    </div>
+                    <div class="col-md-6 row px-md-0 mx-md-0">
+                        <div class="col-md-4 mb-1 px-md-0 mx-md-0">Miejsce sprzedaży:</div>
+                        <div class="col-md-8 mb-2 px-md-0 mx-md-0">
+                            {% if not data.where == {} %}
+                            {% for where in data.where %}
+                                {% if where == 'AP' %}Przy kasie{% else %}Przez internet{% endif %}{% if not loop.last %}, {% endif %}
+                            {% endfor %}
+                            {% else %}
+                                Przy kasie, Przez internet
+                            {% endif %}
+                            </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 row px-md-0 mx-md-0">
+                        <div class="col-md-6 mb-1 px-md-0 mx-md-0">Pracownik:</div>
+                        <div class="col-md-6 mb-2 px-md-0 mx-md-0">{% if data.employee %}{{ data.employee }}{% else %}Nie dotyczy{% endif %}</div>
+                    </div>
+                    <div class="col-md-6 row px-md-0 mx-md-0">
+                        <div class="col-md-4 mb-1 px-md-0 mx-md-0">Film:</div>
+                        <div class="col-md-8 mb-2 px-md-0 mx-md-0">{% if data.movie %}{{ data.movie }}{% else %}Nie dotyczy{% endif %}</div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 mb-1 px-md-0 mx-md-0">Rodzaj płatności:</div>
+                    <div class="col-md-9 mb-2 px-md-0 mx-md-0">
+                        {% if not data.payment == {} %}
+                            {% for payment in data.payment %}{{ payment }}{% if not loop.last %}, {% endif %}{% endfor %}
+                        {% else %}Nie dotyczy
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div style="overflow-x: auto">
+            <table class="table mt-5">
+                <thead>
+                <tr>
+                    <th style="width: 10%">Miesiąc</th>
+                    <th style="width: 40%">Miejsce sprzedaży</th>
+                    <th style="width: 40%">Rodzaj płatności</th>
+                    <th style="width: 10%">Suma</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% set register = 0 %}
+                {% set internet = 0 %}
+                {% set cash = 0 %}
+                {% set card = 0 %}
+                {% set all = 0 %}
+                {% for values in transactions %}
+                    {% set register = register + values.register %}
+                    {% set internet = internet + values.internet %}
+                    {% set cash = cash + values.cash %}
+                    {% set card = card + values.card %}
+                    {% set all = all + values.all %}
+                    <tr>
+                        <td>
+                            {% set month = values.date|date('m') %}
+                            {% if month == '1' %}Styczeń
+                            {% elseif month == '2' %}Luty
+                            {% elseif month == '3' %}Marzec
+                            {% elseif month == '4' %}Kwiecień
+                            {% elseif month == '5' %}Maj
+                            {% elseif month == '6' %}Czerwiec
+                            {% elseif month == '7' %}Lipiec
+                            {% elseif month == '8' %}Sierpień
+                            {% elseif month == '9' %}Wrzesień
+                            {% elseif month == '10' %}Październik
+                            {% elseif month == '11' %}Listopad
+                            {% else %}Grudzień
+                            {% endif %}
+                            {{ values.date|date('Y') }}
+                        </td>
+                        <td>
+                            {% if not data.where == {} %}
+                                {% for where in data.where %}
+                                    {% if where == 'AP' %}Przy kasie: {{ values.register|number_format(2, '.', ' ') }} zł
+                                    {% else %}Przez internet: {{ values.internet|number_format(2, '.', ' ') }} zł{% endif %}{% if not loop.last %}, {% endif %}
+                                {% endfor %}
+                            {% else %}
+                                Przy kasie: {{ values.register|number_format(2, '.', ' ') }} zł,
+                                Przez internet: {{ values.internet|number_format(2, '.', ' ') }} zł
+                            {% endif %}
+
+                        </td>
+                        <td>
+                            {% if not data.payment == {} %}
+                                {% for payment in data.payment %}{{ payment }}:
+                                    {% if payment.id == 1 %}{{ values.card|number_format(2, '.', ' ') }}
+                                    {% elseif payment.id == 2 %}{{ values.cash|number_format(2, '.', ' ') }}
+                                    {% else %}{{ values.internet|number_format(2, '.', ' ') }}{% endif %}
+                                    zł{% if not loop.last %}, {% endif %}
+                                {% endfor %}
+                            {% else %}Nie dotyczy{% endif %}
+                        </td>
+                        <td>{{ values.all|number_format(2, '.', ' ') }} zł</td>
+                    </tr>
+                {% endfor %}
+                <tr class="font-weight-bold">
+                    <td>
+                        Ogółem
+                    </td>
+                    <td>
+                        {% if not data.where == {} %}
+                            {% for where in data.where %}
+                                {% if where == 'AP' %}Przy kasie: {{ register|number_format(2, '.', ' ') }} zł
+                                {% else %}Przez internet: {{ internet|number_format(2, '.', ' ') }} zł{% endif %}{% if not loop.last %}, {% endif %}
+                            {% endfor %}
+                        {% else %}
+                            Przy kasie: {{ register|number_format(2, '.', ' ') }} zł,
+                            Przez internet: {{ internet|number_format(2, '.', ' ') }} zł
+                        {% endif %}
+
+                    </td>
+                    <td>
+                        {% if not data.payment == {} %}
+                            {% for payment in data.payment %}{{ payment }}:
+                                {% if payment.id == 1 %}{{ card|number_format(2, '.', ' ') }}
+                                {% elseif payment.id == 2 %}{{ cash|number_format(2, '.', ' ') }}
+                                {% else %}{{ internet|number_format(2, '.', ' ') }}{% endif %}
+                                zł{% if not loop.last %}, {% endif %}
+                            {% endfor %}
+                        {% else %}Nie dotyczy{% endif %}
+                    </td>
+                    <td>{{ all|number_format(2, '.', ' ') }} zł</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <a href="{{ path('workers_app/reports/sale') }}" class="btn btn-primary pull-right">Wygeneruj nowy raport</a>
+    </div>
+{% endblock %}

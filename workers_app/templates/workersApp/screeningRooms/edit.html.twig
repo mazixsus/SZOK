@@ -1,0 +1,89 @@
+{% extends 'workersApp/workerBase.html.twig' %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('css/room_view.css') }}" type="text/css">
+{% endblock %}
+
+{% block javascripts %}
+    <script src="{{ asset('js/room_creator.js') }}" type="text/javascript"></script>
+{% endblock %}
+
+{% block content %}
+    <div class="row justify-content-between px-3">
+        <div>
+            <h1 class="mb-3 font-weight-normal">Edycja - Sala {{ values.roomNumber }} </h1>
+        </div>
+        <div>
+            <form method="" class="form-inline" {% if not editable %}hidden{% endif %}>
+                <label for="inputRoomNumber" class="mx-sm-2">Numer sali: </label>
+                <input type="text" size="3" value="" maxlength="3" name="roomnumber" id="inputRoomNumber"
+                       class="form-control"
+                       onkeypress='return event.charCode >= 48 && event.charCode <= 57 || event.charCode >= 65 && event.charCode <= 90 || event.charCode >= 97 && event.charCode <= 122'>
+                <label for="inputRowNumber" class="mr-sm-2 ml-sm-5">Liczba rzędów: </label>
+                <input type="number" min="5" max="99" step="1" value="10" name="roomnumber" id="inputRowNumber"
+                       class="form-control" onkeypress='return event.charCode >= 48 && event.charCode <= 57'>
+
+                <label for="inputRowNumber" class="mx-sm-2">Liczba pozycji w rzędzie:</label>
+                <input type="number" min="5" max="99" step="1" value="10" name="roomnumber" id="inputSeatNumber"
+                       class="form-control" onkeypress='return event.charCode >= 48 && event.charCode <= 57'>
+
+                <button class="btn btn-primary ml-sm-2" onclick="createRoom()" type="button">
+                    Zmień
+                </button>
+            </form>
+        </div>
+    </div>
+    {% if error %}
+        <div class="alert alert-danger">{{ error }}</div>
+    {% endif %}
+    <div id="validErrorAlert">
+
+    </div>
+    <div class="content panel my-2 mx-0 p-5 bg-light">
+        <div class="row justify-content-between px-3">
+            <div class="room_view" id="roomContent">
+
+            </div>
+            <div class="mt-2 mx-2 p-3 legend float-right">
+                <h3 class="col-12 mb-3">Legenda</h3>
+                <div class="col-12 mb-2">
+                    <div class="seat seat_normal legend_seat mr-1" id="button1"></div>
+                    <label for="button1">{{ rowType[0].nazwa }}</label>
+                </div>
+                <div class="col-12 mb-2">
+                    <div class="seat seat_buying_only legend_seat mr-1"></div>
+                    <label for="button2">{{ rowType[1].nazwa }}</label>
+                </div>
+                <div class="col-12">
+                    <div class="seat seat_inactive legend_seat mr-1"></div>
+                    <label for="button3">Przejście</label>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div>
+        <p class="mb-1 pt-2">1. Aby zmienić dostępność rzędu, wciśnij jego numer.</p>
+        <p class="mb-1">2. Aby zmienić miejsce w przejście, wciśnij jego pozycję.</p>
+    </div>
+
+    <div class="row justify-content-between px-3">
+        <div>
+            <a href="{{ path('workers_app/rooms_page/view', {'id': id})  }}" class="btn btn-secondary">Anuluj</a>
+        </div>
+        <div>
+            <form method="post" onsubmit="return setData()">
+                <input type="text" id="roomId" hidden name="roomId" value="{{ id }}">
+                <input type="text" id="roomNumber" hidden name="roomNumber" value="{{ values.roomNumber }}">
+                <input type="text" id="rowCount" hidden name="rowCount" value="{{ values.rowCount }}">
+                <input type="text" id="seatCount" hidden name="seatCount" value="{{ values.seatCount }}">
+                <input type="text" id="rowCode" hidden name="rowCode" value="{{ values.rowCode }}">
+                <input type="text" id="seatCode" hidden name="seatCode" value="{{ values.seatCode }}">
+                <button class="btn btn-primary ml-sm-2" id="saveButton" type="submit">
+                    Zapisz
+                </button>
+            </form>
+        </div>
+    </div>
+{% endblock %}

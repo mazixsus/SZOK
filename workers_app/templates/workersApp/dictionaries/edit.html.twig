@@ -1,0 +1,185 @@
+{% extends 'workersApp/workerBase.html.twig' %}
+
+{% block content %}
+    <div class="row pb-4 mt-0">
+    <div class="h1 col-md">{{ rodzaj }}</div>
+    {% if slownik %}
+    {% if krytyczny %}
+    {% if page == 'types' %}
+        <div class="col-md">
+            <a href="{{ path("workers_app/tickets/add",{'dictionaryName':page}) }}"
+               class="btn btn-primary pull-right" style="margin-left: 4px;">Dodaj nową wartość</a>
+            {% if deleted %}
+                <a href="{{ path("workers_app/tickets/dictionaryName", {'dictionaryName':page}) }}"
+                   class="btn btn-primary pull-right">Pokaż aktywne wartości</a>
+            {% else %}
+                <a href="{{ path("workers_app/tickets/deleted", {'dictionaryName':page}) }}"
+                   class="btn btn-primary pull-right">Pokaż usuniete wartości</a>
+            {% endif %}
+            {% else %}
+            <div class="col-md">
+                <a href="{{ path("workers_app/dictionaries/add",{'dictionaryName':page}) }}"
+                   class="btn btn-primary pull-right" style="margin-left: 4px;">Dodaj nową wartość</a>
+                {% if deleted %}
+                    <a href="{{ path("workers_app/dictionaries/dictionaryName", {'dictionaryName':page}) }}"
+                       class="btn btn-primary pull-right">Pokaż aktywne wartości</a>
+                {% else %}
+                    <a href="{{ path("workers_app/dictionaries/deleted",{'dictionaryName':page}) }}"
+                       class="btn btn-primary pull-right">Pokaż usuniete wartości</a>
+                {% endif %}
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+        <table id="dictionary" class="table table-hover">
+            <thead>
+            <tr>
+                <th style="width: 10%">Klucz</th>
+                <th style="width: 30%">Wartość</th>
+                <th style="width: 30%"></th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for slownikWiersz in slownik %}
+                {% if slownikWiersz.id != id %}
+                    <tr>
+                        <td>{{ slownikWiersz.id }}</td>
+                        <td>{{ slownikWiersz.nazwa }}</td>
+
+                        <td>
+                            {% if krytyczny %}
+                                <button type="button" class="btn btn-danger btn-sm float-right" data-toggle="modal"
+                                        data-target="#instanceId{{ slownikWiersz.id }}">
+                                    Usuń
+                                </button>
+                            {% endif %}
+                            {% if page == 'types' %}
+                                <a class="btn btn-primary float-right btn-sm" style="margin-right: 4px"
+                                   href="{{ path('workers_app/tickets/edit',{'dictionaryName':page, 'currentPage':currentPage, 'id':slownikWiersz.id}) }}"
+                                   role="button">Edytuj</a>
+                            {% else %}
+                                <a class="btn btn-primary float-right btn-sm" style="margin-right: 4px"
+                                   href="{{ path('workers_app/dictionaries/edit',{'dictionaryName':page, 'currentPage':currentPage, 'id':slownikWiersz.id}) }}"
+                                   role="button">Edytuj</a>
+                            {% endif %}
+                            <!-- Modal -->
+                            <div class="modal fade" id="instanceId{{ slownikWiersz.id }}" tabindex="-1" role="dialog"
+                                 aria-labelledby="modelTitleId" aria-hidden="true">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content bg-dark text-light text-left">
+                                        <div class="modal-header">
+                                            <h4 class="modal-title" id="modelTitleId">
+                                                <i class="fa fa-trash" aria-hidden="true"></i>
+                                                Usuwanie wartości
+                                            </h4>
+                                            <button type="button" class="close text-light" data-dismiss="modal"
+                                                    aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            Czy napewno chcesz usunąć tą wartośc?
+                                            <ul>
+                                                <li>
+                                                    Słownik: {{ rodzaj }}
+                                                </li>
+                                                <li>
+                                                    Klucz: {{ slownikWiersz.id }}
+                                                </li>
+                                                <li>
+                                                    Wartosć: {{ slownikWiersz.nazwa }}
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                                                Anuluj
+                                            </button>
+                                            <button type="button" class="btn btn-danger delete-instance"
+                                                    data-id="{{ slownikWiersz.id }}">
+                                                <i id="spinner{{ slownikWiersz.id }}"></i> Usuń
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- End of Modal -->
+                        </td>
+                    </tr>
+                {% else %}
+                    {{ form_start(form) }}
+                    <tr>
+                        <td>{{ slownikWiersz.id }}</td>
+                        <td> {% if form.nazwa.vars.errors|length > 0 %}
+                                {{ form_widget(form.nazwa, {'attr': {'class': 'is-invalid form-control'}}) }}
+                            {% else %}
+                                {{ form_widget(form.nazwa) }}
+                            {% endif %}
+                            <div class="invalid-feedback">
+                                {{ form_errors(form.nazwa) }}
+                            </div>
+                        </td>
+                        <td>
+                            {{ form_widget(form) }}
+                            {% if page == 'types' %}
+                                <a href="{{ path("workers_app/tickets/dictionaryName", {'dictionaryName':page}) }}"
+                                   class="btn btn-secondary float-right btn-sm" style="margin-right: 3px;">Anuluj</a>
+                            {% else %}
+                                <a href="{{ path("workers_app/dictionaries/dictionaryName", {'dictionaryName':page}) }}"
+                                   class="btn btn-secondary float-right btn-sm" style="margin-right:3px;">Anuluj</a>
+                            {% endif %}
+
+                        </td>
+                    </tr>
+                    {{ form_end(form) }}
+                {% endif %}
+            {% endfor %}
+            </tbody>
+        </table>
+        <div>
+            {% if page == 'types' %}
+                <a class="btn btn-secondary" href="{{ path('workers_app/main_page') }}">Anuluj</a>
+            {% else %}
+                <a class="btn btn-secondary" href="{{ path('workers_app/dictionaries') }}">Anuluj</a>
+            {% endif %}
+            {% if page == 'types' %}
+                {% if not(deleted) %}
+                    {% set basePath = path('workers_app/tickets/dictionaryName', {'dictionaryName':page}) %}
+                {% else %}
+                    {% set basePath = path('orkers_app/tickets/deleted', {'dictionaryName':page}) %}
+                {% endif %}
+            {% else %}
+                {% if not(deleted) %}
+                    {% set basePath = path('workers_app/dictionaries/dictionaryName', {'dictionaryName':page}) %}
+                {% else %}
+                    {% set basePath = path('workers_app/dictionaries/deleted', {'dictionaryName':page}) %}
+                {% endif %}
+            {% endif %}
+            {% include 'workersApp/inc/pagination.html.twig' %}
+        </div>
+    {% if is_granted('ROLE_MANAGER') or is_granted('ROLE_ADMIN') %}
+        <script>
+            const dictionary = document.getElementById('dictionary');
+            if (dictionary) {
+                dictionary.addEventListener('click', e => {
+                    if (e.target.className === 'btn btn-danger delete-instance') {
+                        const id = e.target.getAttribute('data-id');
+                        e.target.setAttribute('disabled', 'true');
+                        document.getElementById('spinner' + id).setAttribute('class', 'fa fa-spinner fa-spin');
+                        {% if page == 'types' %}
+                        fetch(`{{ path('workers_app/tickets/delete', {'dictionaryName':page}) }}/${id}`,
+                            {method: 'DELETE'}
+                        ).then(res => window.location.reload());
+                        {% else %}
+                        fetch(`{{ path('workers_app/dictionaries/delete', {'dictionaryName':page}) }}/${id}`,
+                            {method: 'DELETE'}
+                        ).then(res => window.location.reload());
+                        {% endif %}
+                    }})}
+        </script>
+    {% endif %}
+    {% else %}
+        <h1>Brak danych</h1>
+    {% endif %}
+
+{% endblock %}

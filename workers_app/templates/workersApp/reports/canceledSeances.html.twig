@@ -1,0 +1,86 @@
+{% extends 'workersApp/workerBase.html.twig' %}
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('css/error_messages.css') }}">
+{% endblock %}
+{% block javascripts %}
+    <script src="{{ asset('js/form_invalid_func.js') }}"></script>
+{% endblock %}
+
+{% block content %}
+    <div class="row pb-4 mt-0">
+        <div class="h1 col-md">Raport seansów odwołanych</div>
+    </div>
+    <div class="row justify-content-between h5 mb-4">
+        <div class="col-md-10">
+
+            {{ form_start(form, {'attr': {'class': 'mb-4 form-inline'}}) }}
+            <div class="form-group">
+                {{ form_label(form.from) }}
+                {% if form.from.vars.errors|length > 0 %}
+                    {{ form_widget(form.from, {'attr': {'class': 'is-invalid form-control mx-2'}}) }}
+                {% else %}
+                    {{ form_widget(form.from) }}
+                {% endif %}
+                <div class="invalid-feedback">
+                    {{ form_errors(form.from) }}
+                </div>
+            </div>
+            <div class="form-group">
+                {{ form_label(form.to) }}
+                {% if form.to.vars.errors|length > 0 or error %}
+                    {{ form_widget(form.to, {'attr': {'class': 'is-invalid form-control mx-2'}}) }}
+                {% else %}
+                    {{ form_widget(form.to) }}
+                {% endif %}
+                <div class="invalid-feedback">
+                    {{ form_errors(form.to) }}
+                    <ul>
+                        <li>
+                            {{ error }}
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            {{ form_widget(form.submit) }}
+            {{ form_end(form) }}
+        </div>
+        <div class="col-md-2">
+            Suma: {{ seancesCount }}
+        </div>
+    </div>
+    {% if pageCount > 0 %}
+        <div style="overflow-x: auto;">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th style="width: 20%">Data seansu</th>
+                    <th style="width: 40%">Filmy</th>
+                    <th style="width: 20%">Format</th>
+                    <th style="width: 20%">Sala</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for seance in seances %}
+                    <tr>
+                        <td scope="row">{{ seance.poczatekseansu|date('d.m.Y H:i') }} - {{ seance.SeanceEndTime|date('H:i') }}</td>
+                        <td>
+                            {% for smf in seance.seansMaFilmy %}
+                                {{ smf.filmy }}{% if not loop.last %},<br>{% endif %}
+                            {% endfor %}
+                        </td>
+                        <td>{{ seance.typyseansow }}</td>
+                        <td>{{ seance.sale }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% include 'workersApp/inc/paginationWithParams.html.twig' %}
+    {% else %}
+        <h1 class="text-center">Brak odwołanych seansów we wskazanym okresie</h1>
+        <div class="text-center display-1">
+            <i class="fa fa-calendar-minus-o" aria-hidden="true"></i>
+        </div>
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,303 @@
+{% extends 'workersApp/workerBase.html.twig' %}
+{% block content %}
+    <div class="row pb-4 mt-0">
+        <div class="h1 col-md">{{ client.imie }} {{ client.nazwisko }}</div>
+        <div class="col-md">
+            <button type="button" id="user" class="btn btn-danger pull-right" style="margin-left: 3px;"
+                    data-toggle="modal"
+                    data-target="#userIdDel">
+                Usuń
+            </button>
+            {% if client.czyzablokowany %}
+                <button type="button" id="user" class="btn btn-primary pull-right" style="margin-left: 3px;"
+                        data-toggle="modal"
+                        data-target="#userIdAct">
+                    Odblokuj
+                </button>
+            {% else %}
+                <button type="button" id="user" class="btn btn-primary pull-right" style="margin-left: 3px;"
+                        data-toggle="modal"
+                        data-target="#userIdAct">
+                    Zablokuj
+                </button>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if client %}
+        <div class="container mt-4">
+            <div class="justify-content-center h5">
+                <div class="row mb-3">
+                    <div class="col-sm-6">Login:</div>
+                    <div class="col-sm-6 pl-sm-2">{{ client.login }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-6">Imię:</div>
+                    <div class="col-sm-6 pl-sm-2">{{ client.imie }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-6">Nazwisko:</div>
+                    <div class="col-sm-6 pl-sm-2">{{ client.nazwisko }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-6">Email:</div>
+                    <div class="col-sm-6 pl-sm-2">{{ client.email }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-6">Numer telefonu:</div>
+                    <div class="col-sm-6 pl-sm-2">{{ client.telefon }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-6">Płeć:</div>
+                    <div class="col-sm-6 pl-sm-2">{% if client.czykobieta %}Kobieta{% else %}Mężczyzna{% endif %}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-6">Status:</div>
+                    <div class="col-sm-6 pl-sm-2">{% if client.czyzablokowany %}Zablokowany{% else %}Aktywny{% endif %} </div>
+                </div>
+            </div>
+        </div>
+        <div class="row pt-3">
+            <div class="col-lg-6">
+                <div class="h5 pb-2">Rezerwacje: </div>
+                {% if pageCountRes > 0 %}
+                    <div style="overflow-x: auto">
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th style="width: 45%;">Seans</th>
+                            <th style="width: 20%;">Początek seansu</th>
+                            <th style="width: 23%;">Wybrane miejsca</th>
+                            <th style="width: 12%;">Status</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for reservation in reservations %}
+                            <tr>
+                                <td> {% if reservation.seanse.wydarzeniaspecjalne %}
+                                        {{ reservation.seanse.wydarzeniaspecjalne }} -
+                                        <b>{{ reservation.seanse.typyseansow }}</b>
+                                    {% else %}
+                                        {% for smf in reservation.seanse.seansMaFilmy|slice(0,1) %}
+                                            {{ smf.filmy }} - <b> {{ reservation.seanse.typyseansow }} </b>
+                                        {% endfor %}
+                                    {% endif %}
+                                </td>
+                                <td>{{ reservation.seanse.poczatekseansu|date("d.m.Y H:i") }}</td>
+                                <td>
+                                    {% set prev = null %}
+                                    {% for seat in reservation.miejsca %}
+                                        {% if seat.rzedy.id == prev %}
+                                            {{ seat.numermiejsca }}{% if not loop.last %}, {% endif %}
+                                        {% else %}
+                                            {% if not loop.first %}
+                                                <br>{% endif %}R:{{ seat.rzedy.numerrzedu }} M:{{ seat.numermiejsca }}{% if not loop.last %}, {% endif %}{% set prev = seat.rzedy.id %}
+                                        {% endif %}
+                                    {% endfor %}
+                                </td>
+                                <td>{% if reservation.sfinalizowana %}Zrealizowana{% else %}Aktywna{% endif %}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    </div>
+                {% else %}
+                    <h1 class="text-center">Brak rezerwacji</h1>
+                    <div class="text-center display-1">
+                        <i class="fa fa-th-list" aria-hidden="true"></i>
+                    </div>
+                {% endif %}
+                {% include 'workersApp/inc/paginationRes.html.twig' %}
+            </div>
+            <div class="col-lg-6">
+                <div class="h5 pb-2">Transakcje: </div>
+                {% if pageCountTra > 0 %}
+                    <div style="overflow-x: auto">
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th style="width: 45%;">Seans</th>
+                            <th style="width: 20%;">Początek seansu</th>
+                            <th style="width: 23%;">Wybrane miejsca</th>
+                            <th style="width: 12%;">Cena</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for transaction in transactions %}
+                            <tr>
+                                <td> {% if transaction.seanse.wydarzeniaspecjalne %}
+                                        {{ transaction.seanse.wydarzeniaspecjalne }} -
+                                        <b>{{ transaction.seanse.typyseansow }}</b>
+                                    {% else %}
+                                        {% for smf in transaction.seanse.seansMaFilmy|slice(0,1) %}
+                                            {{ smf.filmy }} - <b> {{ transaction.seanse.typyseansow }} </b>
+                                        {% endfor %}
+                                    {% endif %}
+                                </td>
+                                <td>{{ transaction.seanse.poczatekseansu|date("d.m.Y H:i") }}</td>
+                                <td>
+                                    {% set prev = null %}
+                                    {% for ticket in transaction.bilety %}
+                                        {% if ticket.miejsca.rzedy.id == prev %}
+                                            {{ ticket.miejsca.numermiejsca }}{% if not loop.last %}, {% endif %}
+                                        {% else %}
+                                            {% if not loop.first %}
+                                                <br>{% endif %}R:{{ ticket.miejsca.rzedy.numerrzedu }} M:{{ ticket.miejsca.numermiejsca }}{% if not loop.last %}, {% endif %}{% set prev = ticket.miejsca.rzedy.id %}
+                                        {% endif %}
+                                    {% endfor %}
+                                </td>
+                                <td>{{ transaction.sum|number_format(2,".") }} zł</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    </div>
+                {% else %}
+                    <h1 class="text-center">Brak transakcji</h1>
+                    <div class="text-center display-1">
+                        <i class="fa fa-th-list" aria-hidden="true"></i>
+                    </div>
+                {% endif %}
+                {% include 'workersApp/inc/paginationTra.html.twig' %}
+            </div>
+        </div>
+        <a class="btn btn-secondary" href="{{ path('workers_app/clients') }}" role="button">
+            <i class="fa fa-angle-left" aria-hidden="true"></i>
+            Wróć
+        </a>
+        <!-- Modal delete -->
+        <div class="modal fade" id="userIdDel" tabindex="-1" role="dialog"
+             aria-labelledby="modelTitleId" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content bg-dark text-light text-left">
+                    <div class="modal-header">
+                        <h4 class="modal-title" id="modelTitleId">
+                            <i class="fa fa-trash" aria-hidden="true"></i>
+                                Usuwanie użytkownika
+                        </h4>
+                        <button type="button" class="close text-light" data-dismiss="modal"
+                                aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        Czy napewno chcesz usunąć tego użytkownika?
+                        <ul>
+                            <li>
+                                Id: {{ client.id }}
+                            </li>
+                            <li>
+                                Login: {{ client.login }}
+                            </li>
+                            <li>
+                                Imie: {{ client.imie }}
+                            </li>
+                            <li>
+                                Nazwisko: {{ client.nazwisko }}
+                            </li>
+                        </ul>
+                        Akcji tej nie da sie odwrócić.
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                            Anuluj
+                        </button>
+                        <button type="button" id="delete-user" class="btn btn-danger"
+                                data-id="{{ client.id }}">
+                            <i id="spinner{{ client.id }}"></i> Usuń
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Modal block/unblock -->
+        <div class="modal fade" id="userIdAct" tabindex="-1" role="dialog"
+             aria-labelledby="modelTitleId" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content bg-dark text-light text-left">
+                    <div class="modal-header">
+                        <h4 class="modal-title" id="modelTitleId">
+                            <i class="fa fa-trash" aria-hidden="true"></i>
+                            {% if client.czyzablokowany %}
+                                Odblokowywanie użytkownika
+                            {% else %}
+                                Blokowanie użytkownika
+                            {% endif %}
+                        </h4>
+                        <button type="button" class="close text-light" data-dismiss="modal"
+                                aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        {% if client.czyzablokowany %}
+                            Czy napewno chcesz odblokować tego użytkownika?
+                        {% else %}
+                            Czy napewno chcesz zablokować tego użytkownika?
+                        {% endif %}
+
+                        <ul>
+                            <li>
+                                Id: {{ client.id }}
+                            </li>
+                            <li>
+                                Login: {{ client.login }}
+                            </li>
+                            <li>
+                                Imię: {{ client.imie }}
+                            </li>
+                            <li>
+                                Nazwisko: {{ client.nazwisko }}
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                            Anuluj
+                        </button>
+                        <button type="button" id="act-user" class="btn btn-primary"
+                                data-id="{{ client.id }}">
+                            <i id="spinner{{ client.id }}"></i>
+                            {% if client.czyzablokowany %}
+                                Odblokuj
+                            {% else %}
+                                Zablokuj
+                            {% endif %}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- End modal -->
+
+        <script>
+            const userDel = document.getElementById('delete-user');
+            const userAct = document.getElementById('act-user');
+            userDel.addEventListener('click', e => {
+                const id = e.target.getAttribute('data-id');
+                e.target.setAttribute('disabled', 'true');
+                document.getElementById('spinner' + id).setAttribute('class', 'fa fa-spinner fa-spin');
+                fetch(`{{ path('workers_app/clients/delete', {'id' : client.id} ) }}`,
+                    {method: 'DELETE'}
+                ).then(res => window.location.href = "{{ path("workers_app/clients") }}");
+            })
+            userAct.addEventListener('click', e => {
+                const id = e.target.getAttribute('data-id');
+                e.target.setAttribute('disabled', 'true');
+                document.getElementById('spinner' + id).setAttribute('class', 'fa fa-spinner fa-spin');
+                {% if client.czyzablokowany %}
+                fetch(`{{ path('workers_app/clients/unblock', {'id' : client.id} ) }}`,
+                    {method: 'DELETE'}
+                ).then(res => window.location.href = "{{ path('workers_app/clients/show', {'id':client.id}) }}");
+                {% else %}
+                fetch(`{{ path('workers_app/clients/block', {'id' : client.id} ) }}`,
+                    {method: 'DELETE'}
+                ).then(res => window.location.href = "{{ path('workers_app/clients/show', {'id':client.id}) }}");
+                {% endif %}
+
+            })
+        </script>
+    {% else %}
+        <h1>Brak danych</h1>
+    {% endif %}
+{% endblock %}

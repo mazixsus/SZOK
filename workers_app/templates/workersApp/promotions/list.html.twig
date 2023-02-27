@@ -1,0 +1,146 @@
+{% extends 'workersApp/workerBase.html.twig' %}
+
+{% block content %}
+    <div class="row pb-4 mt-0">
+        <div class="h1 col-md">Promocje aktywne</div>
+        <div class="col-md">
+            <div class="pull-right">
+                {% if is_granted('ROLE_MANAGER') or is_granted('ROLE_ADMIN') %}
+                    <a href="{{ path('workers_app/promotions/add') }}" class="btn btn-primary">Nowa promocja</a>
+                {% endif %}
+                <a href="{{ path('workers_app/promotions/old') }}" class="btn btn-primary">Pokaż nieaktywne</a>
+            </div>
+        </div>
+    </div>
+    {% if pageCount > 0 %}
+        <div style="overflow-x: auto;">
+            <table id="promotions" class="table">
+                <thead>
+                <tr>
+                    <th style="width: 20%">Nazwa promocji</th>
+                    <th style="width: 20%">Wysokość promocji</th>
+                    <th style="width: 30%">Specjalne warunki</th>
+                    <th style="width: 20%">Czas trwania promocji</th>
+                    <th style="width: 10%"></th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for promotion in promotions %}
+                    <tr>
+                        <td scope="row">{{ promotion.nazwa }}</td>
+                        <td>{{ promotion.wartosc }} {% if promotion.czykwotowa %}zł{% else %}%{% endif %}</td>
+                        <td>
+                            {% if promotion.czykobieta is not null %}
+                                {% if promotion.czykobieta %}
+                                    Tylko dla pań
+                                {% else %}
+                                    Tylko dla panów
+                                {% endif %}
+                                {% if promotion.staz is not null %}
+                                    posiadających konto od {{ promotion.staz|date("d.m.Y") }} lub dłużej
+                                {% endif %}
+                            {% elseif promotion.staz is not null %}
+                                Tylko dla użytkowników z kontem od {{ promotion.staz|date("d.m.Y") }} lub dłużej
+                            {% else %}
+                                Brak
+                            {% endif %}
+                        </td>
+                        <td{% if "now"|date('Y-m-d') >= promotion.poczatekpromocji|date('Y-m-d') and "now"|date('Y-m-d') <= promotion.koniecpromocji|date('Y-m-d') %}
+                            class="text-success"{% endif %}>
+                            {{ promotion.poczatekPromocji|date("d.m.Y") }}
+                            - {{ promotion.koniecPromocji|date("d.m.Y") }}
+                        </td>
+                        <td>
+                            {% if (is_granted('ROLE_MANAGER') or is_granted('ROLE_ADMIN') )
+                                and promotion.poczatekPromocji|date('Y-m-d') > "now"|date('Y-m-d') %}
+                                <div class="pull-right">
+                                    <a class="btn btn-primary btn-sm"
+                                       href="{{ path('workers_app/promotions/edit', {'id': promotion.id}) }}">Edytuj</a>
+                                    <!-- Button trigger modal -->
+                                    <button type="button" class="btn btn-danger btn-sm" data-toggle="modal"
+                                            data-target="#promoctionId{{ promotion.id }}">
+                                        Usuń
+                                    </button>
+                                </div>
+
+                                <!-- Modal -->
+                                <div class="modal fade" id="promoctionId{{ promotion.id }}" tabindex="-1" role="dialog"
+                                     aria-labelledby="modelTitleId" aria-hidden="true">
+                                    <div class="modal-dialog" role="document">
+                                        <div class="modal-content bg-dark text-light text-left">
+                                            <div class="modal-header">
+                                                <h4 class="modal-title" id="modelTitleId">
+                                                    <i class="fa fa-trash" aria-hidden="true"></i>
+                                                    Usuwanie promocji
+                                                </h4>
+                                                <button type="button" class="close text-light" data-dismiss="modal"
+                                                        aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                Czy napewno chcesz usunąć tą promocje?
+                                                <ul>
+                                                    <li>
+                                                        Nazwa: {{ promotion.nazwa }}
+                                                    </li>
+                                                    <li>
+                                                        Czas trwania: {{ promotion.poczatekPromocji|date("d.m.Y") }}
+                                                        - {{ promotion.koniecPromocji|date("d.m.Y") }}
+                                                    </li>
+                                                    <li>
+                                                        Wysokość: {{ promotion.wartosc }} {% if promotion.czykwotowa %}zł{% else %}%{% endif %}
+                                                    </li>
+                                                </ul>
+                                                Akcji tej nie da sie odwrócić.
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                                                    Anuluj
+                                                </button>
+                                                <button type="button" class="btn btn-danger delete-promotion"
+                                                        data-id="{{ promotion.id }}">
+                                                    <i id="spinner{{ promotion.id }}"></i> Usuń
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- End of Modal -->
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {# remember to set basePath before including pagination #}
+        {% set basePath = path('workers_app/promotions') %}
+        {% include 'workersApp/inc/pagination.html.twig' %}
+
+        {% if is_granted('ROLE_MANAGER') or is_granted('ROLE_ADMIN') %}
+            <script>
+                const promotions = document.getElementById('promotions');
+                if (promotions) {
+                    promotions.addEventListener('click', e => {
+                        if (e.target.className === 'btn btn-danger delete-promotion') {
+                            const id = e.target.getAttribute('data-id');
+                            e.target.setAttribute('disabled', 'true');
+                            document.getElementById('spinner' + id).setAttribute('class', 'fa fa-spinner fa-spin');
+
+                            fetch(`{{ path('workers_app/promotions/delete') }}/${id}`,
+                                {method: 'DELETE'}
+                            ).then(res => window.location.reload());
+                        }
+                    })
+                }
+            </script>
+        {% endif %}
+    {% else %}
+        <h1 class="text-center">Brak aktualnych promocji</h1>
+        <div class="text-center display-1">
+            <i class="fa fa-percent" aria-hidden="true"></i>
+        </div>
+    {% endif %}
+{% endblock %}

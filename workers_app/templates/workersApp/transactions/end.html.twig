@@ -1,0 +1,26 @@
+{% extends 'workersApp/workerBase.html.twig' %}
+
+{% block content %}
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <h2>Transakcja zakończyła się sukcesem!</h2> </br>
+            <h6>
+                Strona z biletami została otwarta w nowym oknie. </br>
+                Należy wydrukować bilety przed zamknięciem tego okna. </br>
+                Przycisk "Pokaż bilety" ponownie otworzy strone z biletami w nowym oknie. </br></br>
+            </h6>
+            <a class="btn btn-primary pull-left" id="mainPageButton"
+               href="{{ path('workers_app/main_page') }}">
+                <i class="fa fa-angle-left" aria-hidden="true"></i>
+                Przejdź do strony głównej</a>
+            <a class="btn btn-primary pull-right" id="ticketButton"
+               href="{{ path('workers_app/ticket', {id: transactionId}) }}"
+               target="_blank">Pokaż bilety</a>
+        </div>
+    </div>
+    <script>
+        window.onload = function () {
+            document.getElementById('ticketButton').click();
+        }
+    </script>
+{% endblock %}

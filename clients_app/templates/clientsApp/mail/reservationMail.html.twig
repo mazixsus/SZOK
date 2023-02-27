@@ -1,0 +1,83 @@
+<html>
+<head>
+    <style>
+        .black {
+            color: black !important
+        }
+    </style>
+</head>
+<body>
+<div class="black">
+    <h2>Witaj{% if client %} {{ client.imie }}{% endif %}!</h2>
+
+    Dziękujemy za skorzystanie z naszych usług.<br>
+    <br>
+    Dane dokonanej rezerwacji:<br>
+        <div>
+            <div>
+                <div>Imie i nazwisko: {{ reservation.imie }} {{ reservation.nazwisko }}</div>
+            </div>
+            <div>
+                <div>E-mail: {{ reservation.email }}</div>
+            </div>
+            <div>
+                <div>Numer telefonu: {{ reservation.telefon }}</div>
+            </div>
+            <div>
+                <div>Film:
+                    {% if reservation.seanse.wydarzeniaspecjalne %}
+                        {{ reservation.seanse.wydarzeniaspecjalne }}
+                    {% else %}
+                        {% for smf in reservation.seanse.seansMaFilmy|slice(0,1) %}
+                            {{ smf.filmy }}
+                        {% endfor %}
+                    {% endif %}</div>
+            </div>
+            <div>
+                <div>Data i godzina: {{ reservation.seanse.poczatekseansu|date('d.m.Y H:i') }}</div>
+            </div>
+            <div>
+                <div>Sala: {{ reservation.seanse.sale.numersali }}</div>
+            </div>
+            <div>
+                <div>Miejsca:</div>
+            </div>
+            <div>
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Rząd</th>
+                        <th>Miejsce</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for selectedSeat in selectedSeats %}
+                        {% if loop.first %}
+                            {% set prev = selectedSeat.miejsca.rzedy.numerrzedu %}
+                            <tr>
+                            <td>{{ selectedSeat.miejsca.rzedy.numerrzedu }}</td><td>
+                        {% endif %}
+                        {% if selectedSeat.miejsca.rzedy.numerrzedu == prev %}
+                            {% if not loop.first %}, {% endif %}{{ selectedSeat.miejsca.numermiejsca }}
+                        {% else %}
+                            </td></tr>
+                            <tr>
+                            <td>{{ selectedSeat.miejsca.rzedy.numerrzedu }}</td>
+                            <td>{{ selectedSeat.miejsca.numermiejsca }}
+                            {% set prev = selectedSeat.miejsca.rzedy.numerrzedu %}
+                            {% if loop.last %}</td></tr>{% endif %}
+                        {% endif %}
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    W razie wszelkich wątpliwości prosimy o kontakt pod nr: XXX-XXX-XXX.<br>
+    Życzymy miłego seansu.
+    <br>
+    <h2>Pozdrawiamy!</h2><br>
+</div>
+</body>
+</html>
+

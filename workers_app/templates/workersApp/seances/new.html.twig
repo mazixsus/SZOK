@@ -1,0 +1,111 @@
+{% extends 'workersApp/workerBase.html.twig' %}
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('css/error_messages.css') }}">
+{% endblock %}
+{% block javascripts %}
+    <script src="{{ asset('js/form_invalid_func.js') }}"></script>
+    <script src="{{ asset('js/movies_func.js') }}"></script>
+{% endblock %}
+{% block content %}
+    <div class="pb-4 mt-0">
+        <div class="h1 pb-3">{% block contexttitle %}Dodawnie seansu{% endblock %}</div>
+        <div class="mx-3">
+            <div class="mx-3">
+                {{ form_start(form) }}
+                <div class="form-group row">
+                    <label class="col-sm-2">Data seansu:</label>
+                    <div class="col-sm-10">
+                        {% if form.poczatekseansu.vars.errors|length > 0 or psError or psError2 %}
+                            {{ form_widget(form.poczatekseansu.date, {'attr': {'class': 'is-invalid form-control', 'min': 'tomorrow'|date('Y-m-d')}}) }}
+                        {% else %}
+                            {{ form_widget(form.poczatekseansu.date, {'attr': {'class': 'form-control'}}) }}
+                        {% endif %}
+                        <div class="invalid-feedback">
+                            {{ form_errors(form.poczatekseansu) }}
+                            <ul>
+                                <li>
+                                    {{ psError }}
+                                </li>
+                                <li>
+                                    {{ psError2 }}
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2">Godzina seansu:</label>
+                    <div class="col-sm-10 px-2 form-inline">
+                        {{ form_widget(form.poczatekseansu.time) }}
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2">{{ form_label(form.sale) }}</label>
+                    <div class="col-sm-10">
+                        {% if form.sale.vars.errors|length > 0 %}
+                            {{ form_widget(form.sale, {'attr': {'class': 'is-invalid form-control'}}) }}
+                        {% else %}
+                            {{ form_widget(form.sale) }}
+                        {% endif %}
+                        <div class="invalid-feedback">
+                            {{ form_errors(form.sale) }}
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2">{{ form_label(form.typyseansow) }}</label>
+                    <div class="col-sm-10">
+                        {% if form.typyseansow.vars.errors|length > 0 %}
+                            {{ form_widget(form.typyseansow, {'attr': {'class': 'is-invalid form-control'}}) }}
+                        {% else %}
+                            {{ form_widget(form.typyseansow) }}
+                        {% endif %}
+                        <div class="invalid-feedback">
+                            {{ form_errors(form.typyseansow) }}
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2">{{ form_label(form.pulebiletow) }}</label>
+                    <div class="col-sm-10">
+                        {% if form.pulebiletow.vars.errors|length > 0 %}
+                            {{ form_widget(form.pulebiletow, {'attr': {'class': 'is-invalid form-control'}}) }}
+                        {% else %}
+                            {{ form_widget(form.pulebiletow) }}
+                        {% endif %}
+                        <div class="invalid-feedback">
+                            {{ form_errors(form.pulebiletow) }}
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2">{{ form_label(form.wydarzeniaspecjalne) }}</label>
+                    <div class="col-sm-10">
+                        {% if form.wydarzeniaspecjalne.vars.errors|length > 0 or wsError%}
+                            {{ form_widget(form.wydarzeniaspecjalne, {'attr': {'class': 'is-invalid form-control'}}) }}
+                        {% else %}
+                            {{ form_widget(form.wydarzeniaspecjalne) }}
+                        {% endif %}
+                        <div class="invalid-feedback">
+                            {{ form_errors(form.wydarzeniaspecjalne) }}
+                            {{ wsError }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group" id="smf_group">
+                    {{ form_label(form.seansMaFilmy) }}
+                    <input type="text" name="form_collectionValues" id="form_collectionValues"
+                           class="form-control{% if smfError %} is-invalid{% endif %}"
+                           value="{{ collectionValues }}" hidden>
+                    <div class="invalid-feedback mb-2">
+                        {{ smfError }}
+                    </div>
+                    {{ form_widget(form.seansMaFilmy) }}
+                </div>
+                {{ form_widget(form.submit) }}
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,121 @@
+{% extends 'workersApp/workerBase.html.twig' %}
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('css/error_messages.css') }}">
+{% endblock %}
+{% block javascripts %}
+    <script src="{{ asset('js/promocje_func.js') }}"></script>
+    <script src="{{ asset('js/form_invalid_func.js') }}"></script>
+{% endblock %}
+{% block content %}
+    <div class="pb-4 mt-0">
+        <div class="h1 pb-3">{% block contexttitle %}Dodawnie promocji{% endblock %}</div>
+        {{ form_start(form) }}
+        <div class="mx-3">
+            <div class="mx-3">
+                <div class="form-group row">
+                    {{ form_label(form.nazwa) }}
+                    <div class="col-sm-10 px-0">
+                        {% if form.nazwa.vars.errors|length > 0 %}
+                            {{ form_widget(form.nazwa, {'attr': {'class': 'is-invalid form-control'}}) }}
+                        {% else %}
+                            {{ form_widget(form.nazwa) }}
+                        {% endif %}
+                        <div class="invalid-feedback">
+                            {{ form_errors(form.nazwa) }}
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    {{ form_label(form.czykwotowa) }}
+                    {{ form_widget(form.czykwotowa) }}
+                </div>
+                <div class="form-group row">
+                    {{ form_label(form.wartosc) }}
+                    <div class="col-sm-10 px-0">
+                        <div class="input-group">
+                            {% if form.wartosc.vars.errors|length > 0 %}
+                                {{ form_widget(form.wartosc, {'attr': {'class': 'is-invalid form-control'}}) }}
+                            {% else %}
+                                {{ form_widget(form.wartosc) }}
+                            {% endif %}
+                            <div class="input-group-append">
+                                <div class="input-group-text">zł / %</div>
+                            </div>
+                            <div class="invalid-feedback">
+                                {{ form_errors(form.wartosc) }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    {{ form_label(form.czykobieta) }}
+                    <div class="col-sm-10 row">
+                        <div class="col-sm-1 pl-1 pl-sm-3 pb-3 pb-sm-0">
+                            <input type="checkbox" id="czyKobietaControl" onclick="genderOnClick(this)"
+                                   style="vertical-align: middle" title="Uwzględnij płeć">
+                        </div>
+                        <div class="col-sm-11 px-0">
+                            {{ form_widget(form.czykobieta) }}
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    {{ form_label(form.staz) }}
+                    <div class="col-sm-10 px-0">
+                        <div class="input-group feedback-after-last-input">
+                            <div class="input-group-prepend">
+                                <div class="input-group-text">
+                                    <input type="checkbox" id="stazControl" onclick="seniorityOnClick(this)"
+                                           title="Uwzględnij staż">
+                                    <div class="pl-1">Od:</div>
+                                </div>
+                            </div>
+                            {% if form.staz.vars.errors|length > 0 %}
+                                {{ form_widget(form.staz, {'attr': {'class': 'is-invalid form-control'}}) }}
+                            {% else %}
+                                {{ form_widget(form.staz) }}
+                            {% endif %}
+                            <div class="invalid-feedback">
+                                {{ form_errors(form.staz) }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    {{ form_label(form.poczatekpromocji) }}
+                    <div class="col-sm-10 px-0">
+                        {% if form.poczatekpromocji.vars.errors|length > 0 %}
+                            {{ form_widget(form.poczatekpromocji, {'attr': {'class': 'is-invalid form-control'}}) }}
+                        {% else %}
+                            {{ form_widget(form.poczatekpromocji) }}
+                        {% endif %}
+                        <div class="invalid-feedback">
+                            {{ form_errors(form.poczatekpromocji) }}
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group row">
+
+                    {{ form_label(form.koniecpromocji) }}
+                    <div class="col-sm-10 px-0">
+                        {% if form.koniecpromocji.vars.errors|length > 0 %}
+                            {{ form_widget(form.koniecpromocji, {'attr': {'class': 'is-invalid form-control'}}) }}
+                        {% else %}
+                            {{ form_widget(form.koniecpromocji) }}
+                        {% endif %}
+                        <div class="invalid-feedback">
+                            {{ form_errors(form.koniecpromocji) }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <a href="{{ path('workers_app/promotions') }}" class="btn btn-secondary">Anuluj</a>
+            <div class="pull-right">
+                {{ form_widget(form.submit) }}
+            </div>
+        </div>
+    {{ form_end(form) }}
+    </div>
+
+
+{% endblock %}

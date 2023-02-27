@@ -1,0 +1,78 @@
+{% block navigation %}
+    <nav class="navbar navbar-expand-lg navbar-light bg-client">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="{{ path('clients_app/main_page') }}"><i class="fa fa-home" aria-hidden="true"></i> SZOK</a>
+            </div>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar"
+                    aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbar">
+                <ul class="nav navbar-nav ml-auto">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="repertuarDropdown" role="button"
+                           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Repertuar
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="repertuarDropdown">
+                            <a class="dropdown-item" href="{{ path('clients_app/movies') }}">Wyświetl dostępne filmy</a>
+                            <a class="dropdown-item" href="{{ path('clients_app/program') }}">Pokaż repertuar</a>
+                        </div>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="promocjeDropdown" role="button"
+                           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Promocje
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="biletyDropdown">
+                            <a class="dropdown-item" href="{{ path('clients_app/promotions') }}">Wyświetl dostępne promocje</a>
+                        </div>
+                    </li>
+                    <li class="nav-item dropdown ">
+                        <a class="nav-link dropdown-toggle" href="#" id="loggedDropdown" role="button"
+                           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fa fa-user" aria-hidden="true"></i> Witaj, {{ app.user.Imie }}
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="loggedDropdown">
+                            <a class="dropdown-item" href="{{ path("clients_app/user/edit") }}">Edytuj mój profil</a>
+                            <a class="dropdown-item" href="{{ path("clients_app/user/password_edit") }}">Zmień hasło</a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="{{ path('clients_app/reservations', {'date': 0, 'ifAccomplish': 2 }) }}">Pokaż moje rezerwacje</a>
+                            <a class="dropdown-item" href="{{ path('clients_app/transactions', {'dateFrom': 0, 'dateTo': 0}) }}">Pokaż moje transakcje</a>
+                            <div class="dropdown-divider"></div>
+                            <button type="button" class="dropdown-item btn" data-toggle="modal"
+                                    data-target="#logoutModal">
+                                Wyloguj się
+                            </button>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Modal -->
+    <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog"
+         aria-labelledby="modelTitleId" aria-hidden="true">
+        <div class="modal-dialog modal-sm" role="document">
+            <div class="modal-content bg-client">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="modelTitleId">Wyloguj się</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true" class="text-light">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    Czy na pewno chcesz się wylogować?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Anuluj
+                    </button>
+                    <a class="btn btn-primary" href="{{ path("clients_app/logout_page") }}">Wyloguj się</a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

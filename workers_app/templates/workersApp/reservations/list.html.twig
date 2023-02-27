@@ -1,0 +1,201 @@
+{% extends 'workersApp/workerBase.html.twig' %}
+
+{% block content %}
+    <div class="row justify-content-between px-3 mb-3">
+        <div>
+            <h1 class="mb-3 font-weight-normal">Rezerwacje</h1>
+        </div>
+    </div>
+    <form method="post">
+        <div class="row pl-2 pr-4 mb-3">
+            <div class="form-inline">
+                <label for="date" class="mx-sm-2">Dzień: </label>
+                <input type="date" name="date" id="date"
+                       class="form-control" value="{% if values %}{{ values.date }}{% endif %}"
+                       onkeypress=''>
+            </div>
+        </div>
+        <div class="row justify-content-between pl-2 pr-4 mb-3">
+            <div class="form-inline">
+                <label for="id" class="mx-sm-2 mb-2">Numer: </label>
+                <input type="id" name="id" id="id"
+                       class="form-control mb-2" value="{% if values %}{{ values.number }}{% endif %}"
+                       onkeypress='return event.charCode >= 48 && event.charCode <= 57'>
+                <label for="name" class="mx-sm-2 mb-2">Imię: </label>
+                <input type="text" name="name" id="name"
+                       class="form-control mb-2" value="{% if values %}{{ values.name }}{% endif %}"
+                       pattern="^[a-zA-ZĄĘÓŁŚŻŹĆŃąęółśżźćń ]{2,44}"
+                       title="Polskie znaki, spacja, od 3 do 45 znaków">
+                <label for="surname" class="mx-sm-2 mb-2">Nazwisko:</label>
+                <input type="text" name="surname" id="surname"
+                       class="form-control mb-2" value="{% if values %}{{ values.surname }}{% endif %}"
+                       pattern="[a-zA-ZĄĘÓŁŚŻŹĆŃąęółśżźćń \-]{2,44}"
+                       title="Polskie znaki, spacja, myślnik, od 3 do 45 znaków">
+                <button class="btn btn-primary ml-sm-2 mb-2" id="filterButton" type="submit">
+                    Filtruj
+                </button>
+            </div>
+            <div>
+                <a class="btn btn-primary"
+                   href="{{ path('workers_app/reservations', {'date': 0, 'id': 0, 'name': 0, 'surname': 0 } ) }}">Pokaż
+                    wszystkie</a>
+            </div>
+        </div>
+    </form>
+    {% if reservations %}
+        <div style="overflow-x: auto;">
+            <table id="reservations" class="table">
+                <thead>
+                <tr>
+                    <th style="width: 10%">Numer rezerwacji</th>
+                    <th style="width: 10%">Imię</th>
+                    <th style="width: 10%">Nazwisko</th>
+                    <th style="width: 40%">Seans</th>
+                    <th style="width: 15%">Rezerwujący</th>
+                    <th style="width: 15%"></th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for reservation in reservations %}
+                    <tr>
+                        <td scope="row">{{ reservation.id }} </td>
+                        <td>{{ reservation.imie }} </td>
+                        <td>{{ reservation.nazwisko }}</td>
+                        <td>
+                            {% if reservation.seanse.wydarzeniaspecjalne %}
+                                {{ reservation.seanse.wydarzeniaspecjalne }} -
+                                {% for smf in reservation.seanse.seansMaFilmy %}
+                                    {{ smf.filmy }}{% if not loop.last %}, {% endif %}
+                                {% endfor %}
+                            {% else %}
+                                {% for smf in reservation.seanse.seansMaFilmy|slice(0,1) %}
+                                    {{ smf.filmy }}
+                                {% endfor %}
+                            {% endif %}
+                            - {{ reservation.seanse.typyseansow.nazwa }}
+                            - {{ reservation.seanse.poczatekseansu|date('d.m.Y H:i') }}
+                            - {{ reservation.seanse.sale }}
+                        </td>
+                        <td>
+                            {% if reservation.pracownicy is not null %}
+                                Pracownik: {{ reservation.pracownicy }}
+                            {% elseif reservation.uzytkownicy is not null %}
+                                Użytkownik: {{ reservation.uzytkownicy }}
+                            {% else %}
+                                Odwiedzający
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div id="alert{{ reservation.id }}"></div>
+                            <div class="pull-right" id="buttonsDiv{{ reservation.id }}">
+                                <!-- Button trigger modal -->
+                                <button type="button" class="btn btn-danger btn-sm" data-toggle="modal"
+                                        data-target="#reservationId{{ reservation.id }}">
+                                    Anuluj rezerwacje
+                                </button>
+                                <!-- Modal -->
+                                <div class="modal fade" id="reservationId{{ reservation.id }}" tabindex="-1"
+                                     role="dialog"
+                                     aria-labelledby="modelTitleId" aria-hidden="true">
+                                    <div class="modal-dialog" role="document">
+                                        <div class="modal-content bg-dark text-light text-left">
+                                            <div class="modal-header">
+                                                <h4 class="modal-title" id="modelTitleId">
+                                                    <i class="fa fa-trash" aria-hidden="true"></i>
+                                                    Anulowanie rezerwacji
+                                                </h4>
+                                                <button type="button" class="close text-light"
+                                                        id="buttonClose{{ reservation.id }}"
+                                                        data-dismiss="modal"
+                                                        aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                Czy napewno chcesz anulować rezerwacje {{ reservation.id }}?
+                                                <ul>
+                                                    <li>
+                                                        Imię i
+                                                        nazwisko: {{ reservation.imie }} {{ reservation.nazwisko }}
+                                                    </li>
+                                                    <li>
+                                                        Seans:
+                                                        {% if reservation.seanse.wydarzeniaspecjalne %}
+                                                            {{ reservation.seanse.wydarzeniaspecjalne }} -
+                                                            {% for smf in reservation.seanse.seansMaFilmy %}
+                                                                {{ smf.filmy }}{% if not loop.last %}, {% endif %}
+                                                            {% endfor %}
+                                                        {% else %}
+                                                            {% for smf in reservation.seanse.seansMaFilmy|slice(0,1) %}
+                                                                {{ smf.filmy }}
+                                                            {% endfor %}
+                                                        {% endif %}
+                                                    </li>
+                                                </ul>
+                                                Akcji tej nie da sie odwrócić.
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary"
+                                                        data-dismiss="modal">
+                                                    Anuluj
+                                                </button>
+                                                <button type="button" onclick="deleteReservation({{ reservation.id }})"
+                                                        class="btn btn-danger delete-reservation">
+                                                    <i id="spinner{{ reservation.id }}"></i> Anuluj rezerwacje
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- End of Modal -->
+                                <a class="btn btn-primary btn-sm"
+                                   href="{{ path('workers_app/reservations/accomplish', {'id':reservation.id } ) }}">Zrealizuj</a>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+
+
+        {% set basePath = path('workers_app/reservations', {
+            'date': app.request.get('date'),
+            'id': app.request.get('id'),
+            'name': app.request.get('name'),
+            'surname': app.request.get('surname')
+        } ) %}
+        {% include 'workersApp/inc/pagination.html.twig' %}
+
+        <script>
+            function deleteReservation(reservationId) {
+                document.getElementById('spinner' + reservationId).setAttribute('class', 'fa fa-spinner fa-spin');
+                $.ajax({
+                    url: '{{ path('workers_app/reservations/delete') }}',
+                    type: "DELETE",
+                    dataType: "json",
+                    data: {
+                        "reservationId": reservationId
+                    },
+                    async: true,
+                    success: function (data) {
+                        document.getElementById('buttonClose' + reservationId).click();
+                        document.getElementById('buttonsDiv' + reservationId).hidden = true;
+                        document.getElementById('alert' + reservationId).hidden = false;
+                        console.log(data);
+                        if (data.result) {
+                            document.getElementById('alert' + reservationId).innerHTML = "Rezerwacja została poprawnie usunięta!";
+                            document.getElementById('alert' + reservationId).classList = 'text-success font-weight-bold pull-right';
+                        } else {
+                            document.getElementById('alert' + reservationId).innerHTML = "Rezerwacja została już wcześniej usunięta lub jest już zrealizowana. Proszę odświeżyć stronę i spróbować ponownie";
+                            document.getElementById('alert' + reservationId).classList = 'text-danger font-weight-bold pull-right';
+                        }
+                    }
+                });
+            }
+        </script>
+    {% else %}
+        <p class="h1">Brak rezerwacji</p>
+    {% endif %}
+{% endblock %}

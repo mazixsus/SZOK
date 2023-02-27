@@ -1,0 +1,33 @@
+{% extends 'workersApp/workerBase.html.twig' %}
+
+{% block content %}
+    <div class="row pb-4 mt-0">
+    <div class="h1 col-md">Słowniki</div>
+        </div>
+        <div style="overflow-x: auto ">
+            <table id="articles" class="table">
+                <thead>
+                <tr>
+                    <th style="width: 30%">Nazwa Słownika</th>
+                    <th style="width: 30%">Rodzaj słownika</th>
+                    <th style="width: 40%"></th>
+                </tr>
+                </thead>
+                <tbody>
+
+                {% for row in list %}
+                <tr>
+                    <td>{{ row.name }}</td>
+                    <td>{% if row.isCritical %}
+                            Zwykły
+                         {% else %}
+                             Krytyczny
+                         {% endif %}</td>
+                    <td><a href="{{ path("workers_app/dictionaries/dictionaryName",{'dictionaryName':row.dictionaryName}) }}"
+                           class="btn btn-primary float-right btn-sm">Pokaż</a></td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+{% endblock %}

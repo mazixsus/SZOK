@@ -1,0 +1,202 @@
+{% extends 'workersApp/workerBase.html.twig' %}
+
+{% block content %}
+    <div class="row pb-4 mt-0">
+    <div class="h1 col-md">{{ rodzaj }}</div>
+    {% if (is_granted('ROLE_ADMIN') and krytyczny) %}
+    {% if page == 'types' or page == 'pools' %}
+    {% if  page == 'types' %}
+    <div class="col-md">
+    <a href="{{ path("workers_app/tickets/add",{'dictionaryName':page}) }}"
+       class="btn btn-primary pull-right" style="margin-left: 4px;">Dodaj nową wartość</a>
+    {% elseif page == 'pools' %}
+    <div class="col-md">
+    <a href="{{ path("workers_app/tickets/pools/add") }}"
+       class="btn btn-primary pull-right" style="margin-left: 4px;">Dodaj nową wartość</a>
+    {% endif %}
+    {% if deleted %}
+        <a href="{{ path("workers_app/tickets/dictionaryName", {'dictionaryName':page}) }}"
+           class="btn btn-primary pull-right">Pokaż aktywne wartości</a>
+    {% else %}
+        <a href="{{ path("workers_app/tickets/deleted", {'dictionaryName':page}) }}"
+           class="btn btn-primary pull-right">Pokaż usuniete wartości</a>
+    {% endif %}
+    {% else %}
+    <div class="col-md">
+        <a href="{{ path("workers_app/dictionaries/add",{'dictionaryName':page}) }}"
+           class="btn btn-primary pull-right" style="margin-left: 4px;">Dodaj nową wartość</a>
+        {% if deleted %}
+            <a href="{{ path("workers_app/dictionaries/dictionaryName", {'dictionaryName':page}) }}"
+               class="btn btn-primary pull-right">Pokaż aktywne wartości</a>
+        {% else %}
+            <a href="{{ path("workers_app/dictionaries/deleted",{'dictionaryName':page}) }}"
+               class="btn btn-primary pull-right">Pokaż usuniete wartości</a>
+        {% endif %}
+        {% endif %}
+    </div>
+    {% endif %}
+    {% if pageCount %}
+    </div>
+    <table id="dictionary" class="table table-hover">
+        <thead>
+        <tr>
+            <th style="width: 10%">Klucz</th>
+            <th style="width: 30%">Wartość</th>
+            <th style="width: 30%"></th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for slownikWiersz in slownik %}
+            <tr>
+                <td>{{ slownikWiersz.id }}</td>
+                <td>{{ slownikWiersz.nazwa }}</td>
+                <td>
+                    {% if krytyczny %}
+                        {% if not(deleted) %}
+                            {% if is_granted('ROLE_ADMIN') %}
+                                <button type="button" class="btn btn-danger btn-sm float-right" data-toggle="modal"
+                                        data-target="#instanceId{{ slownikWiersz.id }}">Usuń
+                                </button>
+                            {% endif %}
+                        {% else %}
+                            {% if page == 'types' or page == 'pools' %}
+                                <a class="btn btn-primary float-right btn-sm" style="margin-right: 4px"
+                                   href="{{ path('workers_app/tickets/restore',{'dictionaryName':page, 'id':slownikWiersz.id}) }}"
+                                   role="button">Przywróć</a>
+                            {% else %}
+                                <a class="btn btn-primary float-right btn-sm" style="margin-right: 4px"
+                                   href="{{ path('workers_app/dictionaries/restore',{'dictionaryName':page, 'id':slownikWiersz.id}) }}"
+                                   role="button">Przywróć</a>
+                            {% endif %}
+                        {% endif %}
+                    {% endif %}
+                    {% if not(deleted) %}
+                        {% if page == 'types' %}
+                            <a class="btn btn-primary float-right btn-sm" style="margin-right: 4px"
+                               href="{{ path('workers_app/tickets/edit',{'dictionaryName':page, 'currentPage':currentPage, 'id':slownikWiersz.id}) }}"
+                               role="button">Edytuj</a>
+                        {% elseif page == 'pools' %}
+                            <a class="btn btn-primary float-right btn-sm" style="margin-right: 4px"
+                               href="{{ path('workers_app/tickets/pools/show',{'id':slownikWiersz.id}) }}"
+                               role="button">Pokaż</a>
+                        {% else %}
+                            <a class="btn btn-primary float-right btn-sm" style="margin-right: 4px"
+                               href="{{ path('workers_app/dictionaries/edit',{'dictionaryName':page, 'currentPage':currentPage, 'id':slownikWiersz.id}) }}"
+                               role="button">Edytuj</a>
+                        {% endif %}
+                    {% endif %}
+                    {% if is_granted('ROLE_ADMIN') %}
+                        <!-- Modal -->
+                        <div class="modal fade" id="instanceId{{ slownikWiersz.id }}" tabindex="-1" role="dialog"
+                             aria-labelledby="modelTitleId" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content bg-dark text-light text-left">
+                                    <div class="modal-header">
+                                        <h4 class="modal-title" id="modelTitleId">
+                                            <i class="fa fa-trash" aria-hidden="true"></i>
+                                            Usuwanie wartości
+                                        </h4>
+                                        <button type="button" class="close text-light" data-dismiss="modal"
+                                                aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        Czy napewno chcesz usunąć tą wartość?
+                                        <ul>
+                                            <li>
+                                                Słownik: {{ rodzaj }}
+                                            </li>
+                                            <li>
+                                                Klucz: {{ slownikWiersz.id }}
+                                            </li>
+                                            <li>
+                                                Wartosć: {{ slownikWiersz.nazwa }}
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                                            Anuluj
+                                        </button>
+                                        <button type="button" class="btn btn-danger delete-instance"
+                                                data-id="{{ slownikWiersz.id }}">
+                                            <i id="spinner{{ slownikWiersz.id }}"></i> Usuń
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- End of Modal -->
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    {% if page != 'types' and page != 'pools' %}
+    <a class="btn btn-secondary" href="{{ path('workers_app/dictionaries') }}">
+        <i class="fa fa-angle-left" aria-hidden="true"></i>
+        Wróć
+    </a>
+    {% endif %}
+    {% if page == 'types' or page == 'pools' %}
+        {% if not(deleted) %}
+            {% set basePath = path('workers_app/tickets/dictionaryName', {'dictionaryName':page}) %}
+        {% else %}
+            {% set basePath = path('workers_app/tickets/deleted', {'dictionaryName':page}) %}
+        {% endif %}
+    {% else %}
+        {% if not(deleted) %}
+            {% set basePath = path('workers_app/dictionaries/dictionaryName', {'dictionaryName':page}) %}
+        {% else %}
+            {% set basePath = path('workers_app/dictionaries/deleted', {'dictionaryName':page}) %}
+        {% endif %}
+    {% endif %}
+    {% include 'workersApp/inc/pagination.html.twig' %}
+
+    {% if not(deleted) %}
+    {% if is_granted('ROLE_ADMIN') %}
+    <script>
+        const dictionary = document.getElementById('dictionary');
+        if (dictionary) {
+            dictionary.addEventListener('click', e => {
+                if (e.target.className === 'btn btn-danger delete-instance') {
+                    const id = e.target.getAttribute('data-id');
+                    e.target.setAttribute('disabled', 'true');
+                    document.getElementById('spinner' + id).setAttribute('class', 'fa fa-spinner fa-spin');
+                    {% if page == 'types' or page == 'pools' %}
+                    fetch(`{{ path('workers_app/tickets/delete', {'dictionaryName':page}) }}/${id}`,
+                        {method: 'DELETE'}
+                    ).then(res => window.location.reload());
+                    {% else %}
+                    fetch(`{{ path('workers_app/dictionaries/delete', {'dictionaryName':page}) }}/${id}`,
+                        {method: 'DELETE'}
+                    ).then(res => window.location.reload());
+                    {% endif %}
+                }
+            })
+        }
+    </script>
+    {% endif %}
+    {% endif %}
+
+    {% else %}
+    <div class="col-sm-12 mt-0">
+        <h1 class="text-center">Brak wartości</h1>
+        <div class="text-center display-1">
+            <i class="fa fa-th-list" aria-hidden="true"></i>
+        </div>
+        <div>
+            {% if page == 'types' or page == 'pools' %}
+            {% else %}
+                <a class="btn btn-secondary" href="{{ path('workers_app/dictionaries') }}">
+                    <i class="fa fa-angle-left" aria-hidden="true"></i>
+                    Wróć
+                </a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+{% endblock %}

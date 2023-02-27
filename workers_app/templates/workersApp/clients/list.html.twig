@@ -1,0 +1,53 @@
+{% extends 'workersApp/workerBase.html.twig' %}
+
+{% block content %}
+    <div class="row pb-4 mt-0">
+        <div class="h1 col-md">
+            {% if blocked %}
+                Zablokowani użytkownicy
+            {% else %}
+                Aktywni użytkownicy
+            {% endif %}
+        </div>
+        <div class="col-md">
+            {% if blocked %}
+                <a href="{{ path("workers_app/clients") }}" class="btn btn-primary pull-right">Wyświetl aktywnych
+                    użytkowników</a>
+            {% else %}
+                <a href="{{ path("workers_app/clients/blocked") }}" class="btn btn-primary pull-right">Wyświetl
+                    zablokowanych użytkowników</a>
+            {% endif %}
+        </div>
+    </div>
+    {% if currentPage %}
+        <div style="overflow-x: auto ">
+            <table id="articles" class="table">
+                <thead>
+                <tr>
+                    <th style="width: 10%">Id</th>
+                    <th style="width: 20%">Imię</th>
+                    <th style="width: 20%">Nazwisko</th>
+                    <th style="width: 10%"></th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for client in clientList %}
+                    <tr>
+                        <td>{{ client.id }}</td>
+                        <td>{{ client.imie }}</td>
+                        <td>{{ client.nazwisko }}</td>
+                        <td>
+                            <a href="{{ path('workers_app/clients/show',{"id":client.id}) }}"
+                               class="btn btn-primary float-right btn-sm">Pokaż</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% set basePath = path('workers_app/clients') %}
+        {% include 'workersApp/inc/pagination.html.twig' %}
+    {% else %}
+        <p><h1>Brak klientów</h1></p>
+    {% endif %}
+{% endblock %}

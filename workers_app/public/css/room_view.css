@@ -1,0 +1,95 @@
+.room_view{
+    overflow-x: auto;
+}
+
+.inline{
+    white-space: nowrap;
+}
+
+.legend{
+    background-color: #bcbcbc;
+    color: black;
+    height: 100%;
+}
+
+.pointer{
+    cursor: pointer;
+}
+
+.seat{
+    width: 30px;
+    height: 30px;
+    border: none;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    padding-left: 0px;
+    padding-right: 0px;
+}
+
+.seatViewPadding{
+    padding-top: 3px;
+}
+
+.seat_normal{
+    background-color: lightseagreen;
+    color: white;
+}
+
+.seat_buying_only{
+    background-color: #6633FF;
+    color: white;
+}
+
+.seat_inactive{
+    background-color: white;
+    border: 2px solid grey;
+    color: gray;
+}
+
+.seat_reserved{
+    background-color: #993399;
+    color: white;
+}
+
+.seat_sold{
+    background-color: #CC6600;
+    color: white;
+}
+
+.seat_selected{
+    background-color: #FFFF99;
+    color: black;
+}
+
+.no-seat{
+    display: inline-block;
+    height: 30px;
+    width: 30px;
+    vertical-align: middle;
+}
+
+.legend_seat{
+    vertical-align: middle;
+}
+
+.rowNumber{
+    height: 30px;
+    width: 16px;
+    display: inline-block;
+    font-size: 16px;
+    color: black;
+}
+
+.screen{
+    background-color: black;
+    color: white;
+    margin-right: 7px;
+    margin-left: 31px;
+}
+
+.text_center{
+    text-align: center;
+}

@@ -1,0 +1,91 @@
+{% extends 'clientsApp/clientBase.html.twig' %}
+
+{% block content %}
+    <div class="row justify-content-center">
+        <div class="col-md-6 pb-4 mt-0">
+            <div class="h1 pb-3">Rezerwacja - podsumowanie</div>
+            <div class="mx-3">
+                <div class="mx-3">
+                    <div class="row mb-3">
+                        <div class="col-sm-3">
+                            {% if seance.wydarzeniaspecjalne %}
+                                Wydarzenie specjalne:
+                            {% else %}
+                                Film:
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-9 pl-sm-2">
+                            {% if seance.wydarzeniaspecjalne %}
+                                {{ seance.wydarzeniaspecjalne }} -
+                                {% for smf in seance.seansMaFilmy %}
+                                    {{ smf.filmy }}{% if not loop.last %}, {% endif %}
+                                {% endfor %}
+                            {% else %}
+                                {% for smf in seance.seansMaFilmy|slice(0,1) %}
+                                    {{ smf.filmy }}
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-3">Data i godzina:</div>
+                        <div class="col-sm-9 pl-sm-2">{{ seance.poczatekseansu|date('d.m.Y H:i') }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-3">Wybrane miejsca:</div>
+                        <div class="col-sm-9 pl-sm-2">
+                            Sala: {{ seance.sale.numersali }} {{ rezervationData.seatNumber }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-3">Imie i nazwisko:</div>
+                        <div class="col-sm-9 pl-sm-2">{{ rezervationData.form.imie }} {{ rezervationData.form.nazwisko }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-3">E-mail:</div>
+                        <div class="col-sm-9 pl-sm-2">{{ rezervationData.form.email }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-3">Numer telefonu:</div>
+                        <div class="col-sm-9 pl-sm-2">{{ rezervationData.form.telefon }}</div>
+                    </div>
+                    <form id="summaryForm" name="form" method="post">
+                        <input type="number" id="submitNumber" name="submitNumber" hidden value="">
+                        <input type="text" id="seatId" name="seatId" hidden value="{{ rezervationData.seatId }}">
+                        <input type="text" id="form_imie" name="form[imie]" hidden
+                               value="{{ rezervationData.form.imie }}">
+                        <input type="text" id="form_nazwisko" name="form[nazwisko]" hidden
+                               value="{{ rezervationData.form.nazwisko }}">
+                        <input type="email" id="form_email" name="form[email]" hidden
+                               value="{{ rezervationData.form.email }}">
+                        <input type="text" id="form_telefon" name="form[telefon]" hidden
+                               value="{{ rezervationData.form.telefon }}">
+                        <button type="button" id="form_back" name="form[back]" class="btn btn-primary float-left"
+                                onclick="setBack()">Zmień rezerwacje
+                        </button>
+                        <button type="button" id="form_save" name="form[save]" class="btn btn-primary float-right"
+                                onclick="setConfirm()">Zatwierdz
+                        </button>
+                        <input type="hidden" id="form__token" name="form[_token]"
+                               value="{{ rezervationData.form._token }}">
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+    <script>
+        function setBack() {
+            document.getElementById('form_save').disabled = true;
+            document.getElementById('form_back').disabled = true;
+            document.getElementById('submitNumber').value = '1';
+            document.getElementById('summaryForm').submit();
+        }
+
+        function setConfirm() {
+            document.getElementById('form_save').disabled = true;
+            document.getElementById('form_back').disabled = true;
+            document.getElementById('submitNumber').value = '2';
+            document.getElementById('summaryForm').submit();
+        }
+    </script>
+{% endblock %}

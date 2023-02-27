@@ -1,0 +1,57 @@
+{% extends 'workersApp/workerBase.html.twig' %}
+
+{% block content %}
+    <div class="row pb-4 mt-0">
+        <div class="h1 col-md">Vouchery</div>
+        <div class="col-md">
+            <div class="pull-right">
+                <a href="{{ path('workers_app/vouchers/add') }}" class="btn btn-primary">Generuj vouchery</a>
+            </div>
+        </div>
+    </div>
+    {% if pageCount > 0 %}
+        <div style="overflow-x: auto;">
+            <table id="promotions" class="table">
+                <thead>
+                <tr>
+                    <th style="width: 20%">Czas wygenerowania</th>
+                    <th style="width: 20%">Wysokość zniżki</th>
+                    <th style="width: 20%">Liczba voucherów</th>
+                    <th style="width: 30%">Ważność voucherów</th>
+                    <th style="width: 10%"></th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for voucherGroup in vouchers %}
+                    <tr>
+                        <td scope="row">{{ voucherGroup.czaswygenerowania|date('d.m.Y H:i:s') }}</td>
+                        <td>{{ voucherGroup.wartosc }} {% if voucherGroup.czykwotowa %}zł{% else %}%{% endif %}</td>
+                        <td class="{% if voucherGroup.uzyte == voucherGroup.suma %}text-danger{% elseif voucherGroup.uzyte == 0 %}text-success{% else %}text-primary{% endif %} font-weight-bold">
+                            Wykorzystano: {{ voucherGroup.uzyte }}/{{ voucherGroup.suma }}</td>
+                        <td{% if "now"|date('Y-m-d') >= voucherGroup.poczatekpromocji|date('Y-m-d') and "now"|date('Y-m-d') <= voucherGroup.koniecpromocji|date('Y-m-d') %}
+                            class="text-success"{% endif %}>
+                            {{ voucherGroup.poczatekpromocji|date("d.m.Y") }}
+                            - {{ voucherGroup.koniecpromocji|date("d.m.Y") }}
+                        </td>
+                        <td>
+                            {% if voucherGroup.uzyte < voucherGroup.suma %}
+                                <a class="btn btn-primary btn-sm pull-right"
+                                   href="{{ path('workers_app/vouchers/pdf', {timestamp: voucherGroup.czaswygenerowania|date('U')}) }}"
+                                   target="_blank">Pokaż PDF</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% set basePath = path('workers_app/vouchers') %}
+        {% include 'workersApp/inc/pagination.html.twig' %}
+    {% else %}
+        <h1 class="text-center">Brak aktualnych promocji</h1>
+        <div class="text-center display-1">
+            <i class="fa fa-percent" aria-hidden="true"></i>
+        </div>
+    {% endif %}
+{% endblock %}

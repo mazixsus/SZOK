@@ -1,0 +1,38 @@
+{% extends 'workersApp/workerBase.html.twig' %}
+{% block content %}
+    <div class="pb-4 mt-0">
+        <div class="h1 pb-3">Dodaj nową wartość</div>
+        {{ form_start(form) }}
+        <div class="mx-3">
+            <div class="mx-3">
+                <div class="form-group row">
+                    {{ form_label(form.nazwa) }}
+                    <div class="col-sm-10 px-0">
+                        {% if form.nazwa.vars.errors|length > 0 %}
+                            {{ form_widget(form.nazwa, {'attr': {'class': 'is-invalid form-control'}}) }}
+                        {% else %}
+                            {{ form_widget(form.nazwa) }}
+                        {% endif %}
+                        <div class="invalid-feedback">
+                            {{ form_errors(form.nazwa) }}
+                        </div>
+                    </div>
+                </div>
+                {{ form_widget(form.save) }}
+                {{ form_end(form) }}
+                <div class="row">
+                    {% if page == 'types' %}
+                        <a class="btn btn-secondary" href="{{ path("workers_app/tickets/dictionaryName", {'dictionaryName':page}) }}"
+                           role="button">
+                            <i class="fa fa-angle-left" aria-hidden="true"></i>
+                            Wróć
+                        </a>
+                    {% else %}
+                    <a class="btn btn-secondary" href="{{ path("workers_app/dictionaries/dictionaryName", {'dictionaryName':page}) }}"
+                       role="button">Anuluj</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
